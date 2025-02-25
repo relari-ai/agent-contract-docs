@@ -1,0 +1,75 @@
+---
+title: "Why use Agent Contracts?"
+description: "Understanding the benefits and challenges of AI agents, and how Agent Contracts solve them"
+---
+
+<img
+  className="block dark:hidden"
+  src="/images/flexibility-control-light.png"
+  alt="Flexibility vs Control Diagram Light"
+/>
+<img
+  className="hidden dark:block"
+  src="/images/flexibility-control-dark.png"
+  alt="Flexibility vs Control Diagram Dark"
+/>
+
+## The Challenge: Powerful but Hard to Control
+
+Modern AI agents powered by advanced language models like GPT-4 and Claude 3 can plan, reason, and act autonomously. While this flexibility is powerful, it creates a fundamental challenge: ensuring reliable behavior while maintaining adaptability.
+
+AI agents offer unprecedented flexibility, able to handle diverse tasks and adapt to new scenarios through natural language understanding. However, traditional prompting methods struggle to consistently enforce business rules and safety constraints.
+
+## The Prompting Dilemma
+
+<img
+  className="block dark:hidden"
+  src="/images/prompting-tradeoff-light.png"
+  alt="Prompting Tradeoff Light"
+/>
+<img
+  className="hidden dark:block"
+  src="/images/prompting-tradeoff-dark.png"
+  alt="Prompting Tradeoff Dark"
+/>
+
+When building AI agents, developers face a critical trade-off:
+
+- **General Prompts**
+  - ✅ Flexible and adaptable
+  - ❌ Only 70% reliable, inconsistent behavior
+- **Specific Prompts**
+  - ✅ 95% reliable for specific tasks
+  - ❌ Rigid and limited in scope
+
+Neither approach is ideal for production systems that need both reliability and flexibility.
+
+## The Solution: Agent Contracts
+
+Agent Contracts provide a structured way to define, test, and enforce agent behavior without sacrificing flexibility. They work at three key levels:
+
+1. **Define** - Create clear specifications for expected agent behavior
+2. **Evaluate** - Test compliance before deployment
+3. **Enforce** - Monitor and correct behavior in production
+
+## Real-World Example: Refund Processing
+
+Consider an AI agent handling customer refund requests. Without proper controls, even a well-prompted agent can make costly mistakes. Here's how Agent Contracts help:
+
+## Benefits of Agent Contracts
+
+### 1. Offline Evaluation
+Test agent behavior against real scenarios before deployment, catching potential issues early.
+
+### 2. Runtime Enforcement
+Actively monitor and enforce business rules during execution, preventing costly mistakes.
+
+### 3. Clear Specifications
+Provide a formal way to define expected behavior, improving team communication.
+
+### 4. Scalable Development
+Build reliable AI systems that can grow with your business needs.
+
+## Next Steps
+
+Ready to build more reliable AI agents? Start with our [Quick Start Guide](/quickstart) or dive into the [Core Concepts](/core-concepts) to learn the fundamental principles.

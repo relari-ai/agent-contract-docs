@@ -1,54 +1,64 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "Agent Contracts",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#335BED",
+    "light": "#A3D0FF",
+    "dark": "#1E3A9F"
   },
   "favicon": "/favicon.svg",
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Documentation",
         "groups": [
           {
             "group": "Get Started",
             "pages": [
               "introduction",
               "quickstart",
-              "development"
+              "why",
+              "core-concepts"
             ]
           },
           {
-            "group": "Essentials",
+            "group": "Define",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/settings",
-              "essentials/navigation",
-              "essentials/reusable-snippets"
+              "define/contracts"
+            ]
+          },
+          {
+            "group": "Evaluate",
+            "pages": [
+              "evaluate/evaluation"
+            ]
+          },
+          {
+            "group": "Enforce",
+            "pages": [
+              "enforce/runtime"
+            ]
+          },
+          {
+            "group": "Execute",
+            "pages": [
+              "execute/telemetry",
+              "execute/traces",
+              "execute/simulation"
             ]
           }
         ]
       },
       {
-        "tab": "API Reference",
+        "tab": "Agent Examples",
         "groups": [
           {
-            "group": "API Documentation",
+            "group": "Agent Examples",
             "pages": [
-              "api-reference/introduction"
-            ]
-          },
-          {
-            "group": "Endpoint Examples",
-            "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete"
+              "cookbook/customer-support-agent",
+              "cookbook/finance-agent",
+              "cookbook/browser-agent"
             ]
           }
         ]
@@ -56,21 +66,6 @@
     ],
     "global": {
       "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Community",
-          "href": "https://mintlify.com/community",
-          "icon": "slack"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
       ]
     }
   },
@@ -81,21 +76,29 @@
   "navbar": {
     "links": [
       {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "label": "Home",
+        "href": "https://relari.ai"
+      },
+      {
+        "label": "Github",
+        "href": "https://github.com/relari-ai/agent-contracts"
+      },
+      {
+        "label": "Blog",
+        "href": "https://relari.ai/blog"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
+      "label": "Join Discord",
+      "href": "https://discord.gg/GJnM8SRsHr"
     }
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "x": "https://x.com/relariai",
+      "github": "https://github.com/relari-ai",
+      "linkedin": "https://linkedin.com/company/relari"
     }
   }
 }

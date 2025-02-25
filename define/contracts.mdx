@@ -1,0 +1,164 @@
+---
+title: 'Define Contracts'
+description: 'Learn how to define contracts for AI agents'
+icon: 'code'
+---
+
+## Understanding Contracts
+
+Contracts define the expected behavior of an AI agent through a combination of scenarios and requirements. They help ensure that agents follow business rules and handle interactions appropriately.
+
+## Basic Structure
+
+A contract specification consists of scenarios, which contain one or more contracts with specific requirements:
+
+```python
+from agent_contracts.core.datatypes.specifications import (
+    Contract,
+    Scenario,
+    Specifications,
+)
+```
+
+### Scenarios
+
+Scenarios represent specific use cases that your agent should handle. Each scenario includes:
+
+```python
+scenario = Scenario(
+    uuid="sce-refund-1",                    # Unique identifier
+    name="Eligible Refund Request",         # Human-readable name
+    data={                                  # Test data
+        "uid": "simulation-eligible-refund",
+        "context": [...],                   # Background information
+        "tasks": [...]                      # Specific tasks to test
+    },
+    contracts=[...]                         # List of contracts to verify
+)
+```
+
+### Contracts
+
+Contracts define the specific requirements for a scenario:
+
+```python
+contract = Contract(
+    uuid="con-475c011f",
+    name="con-refund-1",
+    requirements=[...]  # List of requirements
+)
+```
+
+## Requirements
+
+Requirements come in three types, each serving a different purpose:
+
+### 1. Preconditions
+
+Preconditions verify that necessary inputs or conditions are met before the agent proceeds:
+
+```python
+Precondition(
+    "Customer provides order number",
+    level=Level.MUST
+)
+```
+
+### 2. Pathconditions
+
+Pathconditions ensure the agent follows the correct process or sequence of steps:
+
+```python
+Pathcondition(
+    "Collect when the damage was first noticed, location of damage, and the photo of damage",
+    level=Level.MUST
+)
+```
+
+### 3. Postconditions
+
+Postconditions verify the final output or result meets requirements:
+
+```python
+Postcondition(
+    "Process refund request as a store credit",
+    on="output",
+    level=Level.MUST
+)
+```
+
+## Requirement Levels
+
+Requirements can have different levels of importance:
+
+- `Level.MUST`: Critical requirements that must be met
+- `Level.SHOULD`: Important but not critical requirements
+- `Level.MAY`: Optional requirements
+
+## Complete Example: Refund Processing
+
+Here's a complete example of a contract for handling refund requests:
+
+```python
+refund_eligible = Scenario(
+    uuid="sce-refund-1",
+    name="Eligible Refund Request",
+    data={
+        "context": [{"text": "Customer wants to return a damaged sweater"}],
+        "tasks": [{
+            "primary_task": "Request refund for damaged sweater",
+            "additional_info": "Order number: order_01...",
+        }]
+    },
+    contracts=[
+        Contract(
+            uuid="con-475c011f",
+            name="con-refund-1",
+            requirements=[
+                # Input validation
+                Precondition("Customer provides order number", level=Level.MUST),
+                Precondition("Customer provides email address if asked", level=Level.SHOULD),
+
+                # Process steps
+                Pathcondition(
+                    "Collect when the damage was first noticed",
+                    level=Level.MUST
+                ),
+
+                # Output requirements
+                Postcondition(
+                    "Process refund request as a store credit",
+                    on="output",
+                    level=Level.MUST
+                ),
+            ],
+        )
+    ],
+)
+```
+
+## Best Practices
+
+1. **Clear Requirements**: Write requirements that are specific and measurable
+2. **Appropriate Levels**: Use requirement levels thoughtfully
+3. **Complete Coverage**: Include all critical business rules
+4. **Logical Flow**: Ensure pathconditions follow a natural sequence
+5. **Testable Outputs**: Make postconditions verifiable
+
+## Using Contracts
+
+Save your contracts to use them for evaluation and enforcement:
+
+```python
+specifications = Specifications(scenarios=[
+    refund_eligible,
+    refund_ineligible
+])
+specifications.save("src/contracts/refund-specs.json")
+```
+
+## Next Steps
+
+- Learn how to [evaluate](/evaluate/evaluation) your agents against these contracts
+- Understand [runtime enforcement](/enforce/runtime) of contracts
+- Explore [telemetry](/execute/telemetry) for monitoring contract compliance

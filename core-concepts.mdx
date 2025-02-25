@@ -1,0 +1,98 @@
+---
+title: "Core Concepts"
+description: "Understanding the key concepts of Agent Contracts"
+---
+
+## Core Concepts
+
+Learn about the fundamental building blocks that make up Agent Contracts.
+
+<CardGroup cols={1}>
+  <Card
+    title="Contracts"
+    icon="file-contract"
+    href="/define/contracts"
+  >
+    Formal specifications that define expected agent behavior, including inputs, outputs, and constraints. Contracts serve as a blueprint for reliable AI agent development.
+  </Card>
+
+  <Card
+    title="Scenarios"
+    icon="sitemap"
+    href="/define/scenarios"
+  >
+    Specific use cases that your agent should handle, containing test data, context, and tasks. Each scenario can have multiple contracts to verify behavior.
+  </Card>
+
+  <Card
+    title="Requirements"
+    icon="list-check"
+    href="/define/requirements"
+  >
+    Rules that define expected behavior through preconditions (inputs), pathconditions (process steps), and postconditions (outputs). Each can be marked as MUST, SHOULD, or MAY.
+  </Card>
+
+  <Card
+    title="Evaluation"
+    icon="magnifying-glass-check"
+    href="/evaluate/evaluation"
+  >
+    The process of assessing an agent's performance against its defined contracts. This includes checking output validity, constraint compliance, and behavioral alignment.
+  </Card>
+
+  <Card
+    title="Runtime Enforcement"
+    icon="shield-check"
+    href="/enforce/runtime"
+  >
+    Active monitoring and enforcement of contract conditions during agent execution, ensuring real-time compliance with specified behaviors and constraints.
+  </Card>
+
+  <Card
+    title="Telemetry"
+    icon="satellite"
+    href="/execute/telemetry"
+  >
+    Continuous collection and analysis of agent performance data, providing insights into behavior patterns, compliance rates, and potential improvements.
+  </Card>
+
+  <Card
+    title="Traces"
+    icon="route"
+    href="/execute/traces"
+  >
+    Detailed logs of agent execution paths, including decision points, intermediate states, and final outcomes. Essential for debugging and optimization.
+  </Card>
+
+  <Card
+    title="Simulation"
+    icon="vr-cardboard"
+    href="/execute/simulation"
+  >
+    Controlled environments for testing agent behavior under various scenarios, allowing safe validation of contracts before production deployment.
+  </Card>
+</CardGroup>
+
+## How Concepts Work Together
+
+<img
+  className="block dark:hidden"
+  src="/images/concepts-light.png"
+  alt="Core Concepts Diagram Light"
+/>
+<img
+  className="hidden dark:block"
+  src="/images/concepts-dark.png"
+  alt="Core Concepts Diagram Dark"
+/>
+
+The concepts above work together in a continuous cycle:
+
+1. **Define** contracts and scenarios with specific requirements
+2. **Evaluate** agent performance against these contracts
+3. **Enforce** compliance during runtime execution
+4. **Monitor** and collect data through telemetry and traces
+5. **Simulate** and test in controlled environments
+6. **Iterate** and improve based on insights gained
+
+This cycle ensures continuous improvement and reliability in your AI agent development process.

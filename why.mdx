@@ -1,71 +1,53 @@
 ---
 title: "Why Use Agent Contracts?"
-description: "Understanding the benefits and challenges of AI agents, and how Agent Contracts solve them"
+description: "Understanding why Agent Contracts are essential for building reliable AI agents"
 ---
 
-## The Problem: Why AI Agents Are Hard to Control
+## The Fundamental Challenge with AI Agents
 
-AI agents can plan, reason, use tools, and act autonomously, making them powerful and versatile. However, their flexibility also makes them unpredictable and difficult to control compared to simple-prompt LLM applications or deterministic LLM pipelines.
+AI agents offer powerful automation through their ability to reason, plan, and use tools. However, they create a fundamental challenge:
 
-### The Tradeoff Between Generality and Control
+**We lack a structured way to specify agent behavior and ensure reliability.**
+
+Unlike traditional software with explicit code, AI agents powered by LLMs operate on natural language prompts, creating critical gaps:
+
+- **Imprecise specification**: Prompts are ambiguous and can't cover all scenarios
+- **Limited reliability**: There's no built-in way to verify if LLM-powered agents follow instructions
+- **Flexibility-control tradeoff**: Detailed prompts reduce adaptability; general prompts reduce predictability
 
 <img className="block dark:hidden" src="/images/tradeoff.png" alt="Prompting Tradeoff Light" />
 <img className="hidden dark:block" src="/images/tradeoff.png" alt="Prompting Tradeoff Dark" />
 
-Developers face a fundamental tradeoff: **generality vs. control**. The broader the agent's capabilities, the harder it is to ensure predictable behavior in specific situations.
+This forces developers to choose between agents that are too rigid or too unpredictable. Neither option works well for production, business-critical systems, which require both reliability and flexibility.
 
-For instance, a customer support agent designed to handle all inquiries requires broad prompts and access to many tools. However, this generality can make its behavior unpredictable in nuanced cases, such as a refund request where the customer is ineligible.
+## The Solution: Agent Contracts
 
-This forces most developers to choose between:
-- **General agents** that lack reliable control.
-- **Highly specialized agents** that are too rigid.
-
-Neither approach is ideal for production systems, which require **both reliability and flexibility**.
-
-## The Gap: What’s Missing in Current Approaches
-
-Unlike traditional software, where behavior is explicitly defined in code, AI agents are primarily guided by prompts. However, prompts alone are:
-- **Ambiguous and hard to tune** for all possible scenarios.
-- **Not strictly followed** by LLMs, making enforcement difficult.
-- **Either too broad (reducing control) or too narrow (limiting flexibility).**
-
-### The Need for a Structured Yet Flexible Way to Define Agent Behavior
-
-Currently, we cannot determine an AI agent’s full capabilities just from its prompts. We need a structured way to specify expected behavior in specific scenarios beyond broad natural language instructions in prompts.
-
-## The Solution: Agent Contracts as a Complementary Approach
-
-Agent Contracts introduce a **structured yet lightweight** way to refine agent behavior while maintaining flexibility. Unlike prompts, which provide general guidance, contracts **enhance and complement** them by capturing specific expectations in targeted scenarios.
-
-### **How Agent Contracts Work**
-
-1. **Define** – Clearly specify expected agent behavior in specific scenarios **without limiting adaptability**.
-   - Contracts work alongside general prompts to provide additional structure where needed.
-   - They are written in **natural language** like prompts but focus on specific situational requirements.
-   - They ensure agents handle edge cases and critical workflows correctly **without excessive rigidity**.
-
-2. **Evaluate** – Test agent behavior against predefined scenarios **to quantify the agent's behavior**.
-   - Contracts include a **native verification system** to evaluate execution traces.
-   - Developers can quickly **validate** how well an agent follows intended behavior.
-   - Since contracts are scenario-based, they activate **only when relevant**, reducing the burden on prompts.
-
-3. **Enforce** – Monitor and correct agent behavior in runtime without stifling autonomy.
-   - Contracts act as **behavioral & business logic guardrails**, ensuring adherence while allowing adaptive problem-solving.
-   - Unlike prompts, which apply at all times, contracts **activate dynamically** when agents encounter specific conditions.
-   - Successful adherence builds trust by certifying correct execution **while preserving flexibility**.
+Agent Contracts provide a structured framework that addresses these challenges by complementing (not replacing) prompts with scenario-based specifications:
 
 <img className="block dark:hidden" src="/images/role-of-contracts.png" alt="Role of Contracts Light" />
 <img className="hidden dark:block" src="/images/role-of-contracts.png" alt="Role of Contracts Dark" />
 
-This illustration explains the role of contracts across two dimensions:
-- **Known vs. unknown scenarios**
-- **Working vs. non-working scenarios**
+### How Agent Contracts Work
 
-Without contracts, developers lack visibility into when an agent works or fails. Contracts:
-- Expand the **known** set of working and failing scenarios **without rigid constraints**.
-- Help diagnose issues through evaluation **while keeping agents adaptive**.
-- Push the "works" boundary further by gently guiding behavior **rather than imposing hard limits**.
+Agent Contracts follow a three-part approach:
+
+1. **Define** – Specify expected behavior through contracts
+   - Write natural language contracts for specific scenarios
+   - Express business logic as verifiable conditions
+   - Complement general prompts with precise requirements
+
+2. **Evaluate** – Test contracts against agent traces offline
+   - Analyze execution traces to verify contract compliance
+   - Measure performance across test scenarios
+   - Debug and improve contracts before deployment
+
+3. **Verify & Enforce** – Apply contracts during live execution
+   - Check agent behavior against contracts in real-time
+   - Enforce contract conditions when violated
+   - Generate execution traces for continuous improvement
+
+This structured approach bridges the gap between natural language instructions and reliable execution, addressing both specification and reliability challenges simultaneously.
 
 ## Next Steps
 
-Ready to build more reliable AI agents? Get started with our [Quick Start Guide](/quickstart) or explore the [Core Concepts](/core-concepts) to dive deeper.
+Ready to build more reliable AI agents? Start with our [Quick Start Guide](/quickstart) or explore [Core Concepts](/core-concepts) to learn more.

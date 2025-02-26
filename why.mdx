@@ -1,55 +1,71 @@
 ---
-title: "Why use Agent Contracts?"
+title: "Why Use Agent Contracts?"
 description: "Understanding the benefits and challenges of AI agents, and how Agent Contracts solve them"
 ---
 
-## The Challenge with AI Agents: Powerful but Hard to Control
+## The Problem: Why AI Agents Are Hard to Control
 
-AI agents can plan, reason, and act autonomously, making them highly adaptable. However, this flexibility makes controlling their behavior difficult, leading to inconsistent decisions and unreliable outputs.
+AI agents can plan, reason, use tools, and act autonomously, making them powerful and versatile. However, their flexibility also makes them unpredictable and difficult to control compared to simple-prompt LLM applications or deterministic LLM pipelines.
 
-### Tradeoff in building AI agents
+### The Tradeoff Between Generality and Control
 
-<img
-  className="block dark:hidden"
-  src="/images/tradeoff.png"
-  alt="Prompting Tradeoff Light"
-/>
-<img
-  className="hidden dark:block"
-  src="/images/tradeoff.png"
-  alt="Prompting Tradeoff Dark"
-/>
+<img className="block dark:hidden" src="/images/tradeoff.png" alt="Prompting Tradeoff Light" />
+<img className="hidden dark:block" src="/images/tradeoff.png" alt="Prompting Tradeoff Dark" />
 
-When building AI agents, developers face a critical trade-off:
+Developers face a fundamental tradeoff: **generality vs. control**. The broader the agent's capabilities, the harder it is to ensure predictable behavior in specific situations.
 
-- **General Prompts**
-  - ✅ Flexible and adaptable
-  - ❌ Only 70% reliable, inconsistent behavior
-- **Specific Prompts**
-  - ✅ 95% reliable for specific tasks
-  - ❌ Rigid and limited in scope
+For instance, a customer support agent designed to handle all inquiries requires broad prompts and access to many tools. However, this generality can make its behavior unpredictable in nuanced cases, such as a refund request where the customer is ineligible.
 
-Neither approach is ideal for production systems that need both reliability and flexibility.
+This forces most developers to choose between:
+- **General agents** that lack reliable control.
+- **Highly specialized agents** that are too rigid.
 
-## Agent Contracts: pushing the limits of AI agents
+Neither approach is ideal for production systems, which require **both reliability and flexibility**.
 
-Agent Contracts provide a structured way to define, test, and enforce agent behavior without sacrificing flexibility. They work at three key levels:
+## The Gap: What’s Missing in Current Approaches
 
-1. **Define** - Create clear specifications for expected agent behavior
-2. **Evaluate** - Test compliance before deployment
-3. **Enforce** - Monitor and correct behavior in production
+Unlike traditional software, where behavior is explicitly defined in code, AI agents are primarily guided by prompts. However, prompts alone are:
+- **Ambiguous and hard to tune** for all possible scenarios.
+- **Not strictly followed** by LLMs, making enforcement difficult.
+- **Either too broad (reducing control) or too narrow (limiting flexibility).**
 
-<img
-  className="block dark:hidden"
-  src="/images/role-of-contracts.png"
-  alt="Role of Contracts Light"
-/>
-<img
-  className="hidden dark:block"
-  src="/images/role-of-contracts.png"
-  alt="Role of Contracts Dark"
-/>
+### The Need for a Structured Yet Flexible Way to Define Agent Behavior
+
+Currently, we cannot determine an AI agent’s full capabilities just from its prompts. We need a structured way to specify expected behavior in specific scenarios beyond broad natural language instructions in prompts.
+
+## The Solution: Agent Contracts as a Complementary Approach
+
+Agent Contracts introduce a **structured yet lightweight** way to refine agent behavior while maintaining flexibility. Unlike prompts, which provide general guidance, contracts **enhance and complement** them by capturing specific expectations in targeted scenarios.
+
+### **How Agent Contracts Work**
+
+1. **Define** – Clearly specify expected agent behavior in specific scenarios **without limiting adaptability**.
+   - Contracts work alongside general prompts to provide additional structure where needed.
+   - They are written in **natural language** like prompts but focus on specific situational requirements.
+   - They ensure agents handle edge cases and critical workflows correctly **without excessive rigidity**.
+
+2. **Evaluate** – Test agent behavior against predefined scenarios **to quantify the agent's behavior**.
+   - Contracts include a **native verification system** to evaluate execution traces.
+   - Developers can quickly **validate** how well an agent follows intended behavior.
+   - Since contracts are scenario-based, they activate **only when relevant**, reducing the burden on prompts.
+
+3. **Enforce** – Monitor and correct agent behavior in runtime without stifling autonomy.
+   - Contracts act as **behavioral & business logic guardrails**, ensuring adherence while allowing adaptive problem-solving.
+   - Unlike prompts, which apply at all times, contracts **activate dynamically** when agents encounter specific conditions.
+   - Successful adherence builds trust by certifying correct execution **while preserving flexibility**.
+
+<img className="block dark:hidden" src="/images/role-of-contracts.png" alt="Role of Contracts Light" />
+<img className="hidden dark:block" src="/images/role-of-contracts.png" alt="Role of Contracts Dark" />
+
+This illustration explains the role of contracts across two dimensions:
+- **Known vs. unknown scenarios**
+- **Working vs. non-working scenarios**
+
+Without contracts, developers lack visibility into when an agent works or fails. Contracts:
+- Expand the **known** set of working and failing scenarios **without rigid constraints**.
+- Help diagnose issues through evaluation **while keeping agents adaptive**.
+- Push the "works" boundary further by gently guiding behavior **rather than imposing hard limits**.
 
 ## Next Steps
 
-Ready to build more reliable AI agents? Start with our [Quick Start Guide](/quickstart) or dive into the [Core Concepts](/core-concepts) to learn the fundamental principles.
+Ready to build more reliable AI agents? Get started with our [Quick Start Guide](/quickstart) or explore the [Core Concepts](/core-concepts) to dive deeper.

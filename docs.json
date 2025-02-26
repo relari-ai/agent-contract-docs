@@ -51,14 +51,14 @@
         ]
       },
       {
-        "tab": "Agent Examples",
+        "tab": "Examples",
         "groups": [
           {
-            "group": "Agent Examples",
+            "group": "Contracts in Action",
             "pages": [
-              "cookbook/customer-support-agent",
-              "cookbook/finance-agent",
-              "cookbook/browser-agent"
+              "examples/customer-support-agent",
+              "examples/finance-agent",
+              "examples/browser-agent"
             ]
           }
         ]

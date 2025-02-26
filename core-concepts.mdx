@@ -13,15 +13,7 @@ Learn about the fundamental building blocks that make up Agent Contracts.
     icon="file-contract"
     href="/define/contracts"
   >
-    Formal specifications that define expected agent behavior, including inputs, outputs, and constraints. Contracts serve as a blueprint for reliable AI agent development.
-  </Card>
-
-  <Card
-    title="Scenarios"
-    icon="sitemap"
-    href="/define/scenarios"
-  >
-    Specific use cases that your agent should handle, containing test data, context, and tasks. Each scenario can have multiple contracts to verify behavior.
+    Formal specifications that define expected agent behavior. Activated by preconditions and enforced through requirements.
   </Card>
 
   <Card
@@ -29,15 +21,15 @@ Learn about the fundamental building blocks that make up Agent Contracts.
     icon="list-check"
     href="/define/requirements"
   >
-    Rules that define expected behavior through preconditions (inputs), pathconditions (process steps), and postconditions (outputs). Each can be marked as MUST, SHOULD, or MAY.
+    Rules defining behavior through preconditions, pathconditions, and postconditions. Support levels (MUST/SHOULD) and conditional logic.
   </Card>
 
   <Card
-    title="Evaluation"
-    icon="magnifying-glass-check"
-    href="/evaluate/evaluation"
+    title="Specifications"
+    icon="sitemap"
+    href="/define/specifications"
   >
-    The process of assessing an agent's performance against its defined contracts. This includes checking output validity, constraint compliance, and behavioral alignment.
+    Collections of test scenarios that define system behavior, similar to a Product Requirements Document (PRD).
   </Card>
 
   <Card
@@ -45,7 +37,15 @@ Learn about the fundamental building blocks that make up Agent Contracts.
     icon="shield-check"
     href="/enforce/runtime"
   >
-    Active monitoring and enforcement of contract conditions during agent execution, ensuring real-time compliance with specified behaviors and constraints.
+    Active monitoring with four modes: STRICT (stop), AUDIT (log), REMEDIATE (fix), or CUSTOM (handler).
+  </Card>
+
+  <Card
+    title="Evaluation"
+    icon="magnifying-glass-check"
+    href="/evaluate/evaluation"
+  >
+    Offline testing of agent behavior against specifications before deployment.
   </Card>
 
   <Card
@@ -53,7 +53,7 @@ Learn about the fundamental building blocks that make up Agent Contracts.
     icon="satellite"
     href="/execute/telemetry"
   >
-    Continuous collection and analysis of agent performance data, providing insights into behavior patterns, compliance rates, and potential improvements.
+    Real-time monitoring of contract status, violations, and enforcement actions during execution.
   </Card>
 
   <Card
@@ -61,15 +61,15 @@ Learn about the fundamental building blocks that make up Agent Contracts.
     icon="route"
     href="/execute/traces"
   >
-    Detailed logs of agent execution paths, including decision points, intermediate states, and final outcomes. Essential for debugging and optimization.
+    Execution logs tracking contract activation, requirement evaluation, and system state.
   </Card>
 
   <Card
-    title="Simulation"
-    icon="vr-cardboard"
-    href="/execute/simulation"
+    title="Violation Handling"
+    icon="shield-exclamation"
+    href="/enforce/violations"
   >
-    Controlled environments for testing agent behavior under various scenarios, allowing safe validation of contracts before production deployment.
+    Configurable responses to violations through error messages, remediation actions, or custom handlers.
   </Card>
 </CardGroup>
 
@@ -86,13 +86,15 @@ Learn about the fundamental building blocks that make up Agent Contracts.
   alt="Core Concepts Diagram Dark"
 />
 
-The concepts above work together in a continuous cycle:
+### Offline Evaluation
+1. Define contracts and requirements
+2. Create test specifications
+3. Evaluate and iterate
 
-1. **Define** contracts and scenarios with specific requirements
-2. **Evaluate** agent performance against these contracts
-3. **Enforce** compliance during runtime execution
-4. **Monitor** and collect data through telemetry and traces
-5. **Simulate** and test in controlled environments
-6. **Iterate** and improve based on insights gained
+### Runtime Operation
+1. Deploy to enforcement service
+2. Monitor execution
+3. Handle violations
+4. Collect analytics
 
-This cycle ensures continuous improvement and reliability in your AI agent development process.
+This dual approach ensures thorough testing and reliable production operation.

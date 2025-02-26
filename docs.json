@@ -25,7 +25,8 @@
           {
             "group": "Define",
             "pages": [
-              "define/contracts"
+              "define/contracts",
+              "define/specifications"
             ]
           },
           {

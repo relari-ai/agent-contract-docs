@@ -38,7 +38,7 @@ The following guide assumes you have:
     
 <pre style={{ fontFamily: '"Space Mono", monospace', lineHeight: '1.2em' }}>
 $poetry run cli ls trace --timespan 1d
-Listing traces from 2025-03-06 01:55:50to 2025-03-07 01:55:50...
+Listing traces from 2025-03-06 01:55:50 to 2025-03-07 01:55:50...
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┓
 ┃ Trace ID                         ┃ Project Name        ┃ Run ID   ┃ Specifications ID ┃ Scenario ID      ┃ Start Time          ┃ End Time            ┃
 ┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━┩
@@ -47,7 +47,55 @@ Listing traces from 2025-03-06 01:55:50to 2025-03-07 01:55:50...
 │ a7bb5cfe26811835333c087e151f5eda │ langgraph-fin-agent │ cd26ad7e │ u8spz6vw          │ tesla_income     │ 2025-03-06 12:45:32 │ 2025-03-06 12:45:32 │
 └──────────────────────────────────┴─────────────────────┴──────────┴───────────────────┴──────────────────┴─────────────────────┴─────────────────────┘
 </pre>
-    
+
+<pre style={{ fontFamily: '"Space Mono", monospace', lineHeight: '1.2em' }}>
+$poetry run cli verify run cd26ad7e fin-agent-022225.json --timespan 1d
+Verifying run cd26ad7e with specifications from .local/fin-agent-022225.json...
+Output will be saved to output/verify_cd26ad7e.json
+Contract Right Tickers: 100%|████████████████████████████████████████████████████████████████| 3/3 [00:05<00:00,  1.93s/it]
+Contract Right Tickers: 100%|████████████████████████████████████████████████████████████████| 4/4 [00:07<00:00,  1.91s/it]
+Contract Right Tickers: 100%|████████████████████████████████████████████████████████████████| 4/4 [00:08<00:00,  2.06s/it]
+───────────────────────────────────────── Trace 150a4110d9de4134e577f7f4c0c56bd4 ──────────────────────────────────────────
+                               Right Tickers (UNSATISFIED)
+┏━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓
+┃ Type ┃ Qualifier ┃ Requirement                                             ┃ Satisfied ┃
+┡━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━┩
+│ PRE  │ MUST      │ Question about the debt-to-equity ratio                 │ Yes       │
+│ PATH │ MUST      │ Retrieve the financials of at least 3 car manufacturers │ No        │
+│ POST │ MUST      │ Output a table                                          │ No        │
+│ POST │ SHOULD    │ Include at least Tesla, Ford, and General Motors        │ No        │
+└──────┴───────────┴─────────────────────────────────────────────────────────┴───────────┘
+───────────────────────────────────────── Trace a8ac6ae61209833f7abd723bdd175770 ──────────────────────────────────────────
+                                   Right Tickers (SATISFIED)                                    
+┏━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓
+┃ Type ┃ Qualifier ┃ Requirement                                                   ┃ Satisfied ┃
+┡━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━┩
+│ PRE  │ MUST      │ Comparison between Nike and Adidas                            │ Yes       │
+│ PATH │ MUST      │ Retrieve Nike financials with the ticker NKE                  │ Yes       │
+│ PATH │ MUST      │ Retrieve Adidas financials with the ticker ADDYY              │ Yes       │
+│ POST │ SHOULD    │ A numeric value for operating margins expressed in percentage │ Yes       │
+└──────┴───────────┴───────────────────────────────────────────────────────────────┴───────────┘
+───────────────────────────────────────── Trace a7bb5cfe26811835333c087e151f5eda ──────────────────────────────────────────
+                              Right Tickers (SATISFIED)                               
+┏━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓
+┃ Type ┃ Qualifier ┃ Requirement                                         ┃ Satisfied ┃
+┡━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━┩
+│ PRE  │ MUST      │ Question about Tesla's net income                   │ Yes       │
+│ PATH │ MUST      │ Retrieve Tesla's net income with the ticker TSLA    │ Yes       │
+│ POST │ SHOULD    │ A numeric value for net income expressed in dollars │ Yes       │
+└──────┴───────────┴─────────────────────────────────────────────────────┴───────────┘
+</pre>
+
+<pre style={{ fontFamily: '"Space Mono", monospace', lineHeight: '1.2em' }}>
+$poetry run cli ls run --timespan 1d
+Listing runs from 2025-03-05 21:54:40 to 2025-03-07 21:54:40...
+┏━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┓
+┃ Run ID   ┃ Project Name        ┃ Specifications ID ┃ Start Time          ┃ End Time            ┃
+┡━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━┩
+│ cd26ad7e │ langgraph-fin-agent │ u8spz6vw          │ 2025-03-06 12:45:32 │ 2025-03-06 12:45:32 │
+└──────────┴─────────────────────┴───────────────────┴─────────────────────┴─────────────────────┘
+</pre>
+
   </Step>
   <Step title="Run verification on a run">
     ```bash

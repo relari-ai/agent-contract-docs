@@ -6,5 +6,98 @@ icon: "dollar-sign"
 
 ## Finance Agent
 
+### Verification
 
+<Steps>
+  <Step title="Define a Contract">
 
+    Install the `relari-otel` package to collect traces and define contracts.
+
+    ```bash
+    pip install relari-otel
+    ```
+
+    ```python
+    from relari_otel.specifications import Specifications, Scenario, Contract, Precondition, Pathcondition, Postcondition, Level
+
+    # Define a specific scenario and the corresponding contract requirements.
+    comparison_scenario = Scenario(
+        uuid="sce-comparison",
+        name="Comparing financials of companies",
+        data="Does Tesla have a higher net income margin than its US competitors?"
+        contracts = [
+            Contract(
+                uuid="con-comparison",
+                requirements=[
+                    Pathcondition("Uses get_financial_ratios tool to get financial data for each company"),
+                    Pathcondition("Should include Ford, GM, and Rivian in the comparison", level=Level.SHOULD),
+                    Postcondition("Gives a clear yes/no answer and the data to suppor the answer", on="output"),
+                ]
+            )
+        ]
+    )
+
+    analysis_scenario = Scenario(
+        uuid="sce-liquidity-analysis",
+        name="Analyze liquidity of a company",
+        data="What is the liquidity of Tesla?"
+        contracts = [
+            Contract(
+                uuid="con-analysis",
+                requirements=[
+                    Pathcondition("Uses get_balance_sheet tool to retrieve the balance sheet data"),
+                    Pathcondition("Should include current ratio, quick ratio, and cash ratio", level=Level.SHOULD),
+                    Postcondition("Summarize the liquidity of the company and its key ratios", on="output"),
+                ]
+            )
+        ]
+    )
+
+    # Save a collection of scenarios in a Specification to be used for verification.
+    spec = Specifications(
+        scenarios=[comparison_scenario, analysis_scenario]
+    )
+    spec.save("spec.yaml") # Can also be saved as a json
+    ```
+  </Step>
+  <Step title="Set up tracing in your agent code">
+
+    Initialize telemetry code in your agent.
+
+    ```python app.py
+    from relari_otel.otel import Relari
+
+    Relari.init(project_name="Your Project Name", batch=False, certification_enabled=True)
+
+    with Relari.start_new_sample(scenario_id="scenario_id"): # Registers the trace to the scenario you are testing.
+        run_agent() # Your agent code here
+    ```
+
+  </Step>
+  <Step title="Run verification of a contract against a collected trace">
+    Run the agent contract verification service which receives the execution trace.
+
+    ```bash
+    git clone https://github.com/relari/agent-contracts.git
+    cd agent-contracts
+    docker compose up
+    ```
+
+    Now run your agent code (as in previous step) and the trace will appear in Jaeger at `http://localhost:16686/traces`.
+
+  </Step>
+
+  <Step title="Run verification of a contract against a collected trace">
+    
+
+    Use the CLI to list the traces collected.
+    ```bash
+    agent-contracts list-runs
+    ```
+
+    Run verification of the trace against the predefined contract.
+    ```bash
+    agent-contracts verify-run --spec spec.yaml --run-id run_id
+    ```
+  </Step>
+</Steps>

@@ -1,0 +1,73 @@
+---
+title: 'Installation'
+description: 'Set up Agent Contracts in minutes'
+---
+
+In this section, we will show how to quickly instrument your agent code to collect traces and install agent contracts to run offline verification or runtime certification.
+
+
+<Steps>
+  <Step title="Install agent contracts">
+    Install agent contracts.
+
+    ```bash
+    git clone https://github.com/relari-ai/agent-contracts.git
+    cd agent-contracts
+    poetry install
+    ```
+  </Step>
+  <Step title="Install relari-otel in your Agent">
+    In your agent repository, install the `relari-otel` package to collect traces.
+
+    ```bash
+    pip install relari-otel
+    ```
+  </Step>
+  <Step title="Option A: Set up Agent Contracts for Offline Verification">
+    
+    Start agent contract service for verification.
+
+    ```bash
+    cd agent-contracts
+    make docker
+    ```
+
+    Initialize telemetry code in your agent code
+
+    ```python app.py
+    from relari_otel.otel import Relari
+
+    Relari.init(project_name="Your Project Name", batch=False)
+    ```
+  </Step>
+  <Step title="Option B: Set up Agent Contracts for Runtime Certification">
+    
+    Start agent contract service for runtime certification.
+
+    ```bash
+    cd agent-contracts
+    make docker-runtime-certification
+    ```
+
+    Initialize telemetry code in your agent code
+
+    ```python app.py
+    from relari_otel.otel import Relari
+
+    Relari.init(project_name="Your Project Name", batch=False, certification_enabled=True)
+    ```
+  </Step>
+</Steps>
+
+
+## Next Steps
+
+Now that you've created your first contract:
+
+1. Learn more about [defining contracts](/define/contracts)
+2. Understand how to [evaluate](/evaluate/evaluation) your agents
+3. Explore [runtime enforcement](/enforce/runtime)
+
+<Note>
+  For more complex examples and use cases, check out our [core concepts](/core-concepts) guide.
+</Note>

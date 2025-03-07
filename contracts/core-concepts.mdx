@@ -1,0 +1,28 @@
+---
+title: "Core Concepts"
+description: "Understanding the key concepts of Agent Contracts"
+icon: "lightbulb"
+---
+
+## Core Primitives
+
+<img alt="Concept Tree Light" className="block dark:hidden" src="/images/concept-tree.svg" />
+<img alt="Concept Tree Dark" className="hidden dark:block" src="/images/concept-tree.svg" />
+
+**Specification**: A collection of scenario-specific requirements that defines the expected behavior of the agent application.
+
+- **Scenario**: A specific use case that the agent application is expected to handle.
+- **Contract**: A group of requirements that are expected to be met for a given scenario.
+  - **Pre-condition**: A requirement that must be true **before** the execution.
+  - **Path-condition**: A requirement that must be true **during** the execution.
+  - **Post-condition**: A requirement that must be true **after** the execution.
+
+## Ways to use Contracts
+
+<img alt="Use Contracts Light" className="block dark:hidden" src="/images/use-contracts.svg" />
+<img alt="Use Contracts Dark" className="hidden dark:block" src="/images/use-contracts.svg" />
+
+
+**Verification**: The process of checking **offline** if an agent application satisfies the contract requirements for each pre-defined scenario in the specification.
+
+**Certification**: The process of checking **in runtime** if an agent satisfies the **online contract requirements**.

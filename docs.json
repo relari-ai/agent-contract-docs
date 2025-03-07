@@ -17,28 +17,28 @@
             "group": "Get Started",
             "pages": [
               "introduction",
-              "quickstart",
               "why",
-              "core-concepts"
+              "installation"
             ]
           },
           {
-            "group": "Define",
+            "group": "Contracts",
             "pages": [
-              "define/contracts",
-              "define/specifications"
+              "contracts/core-concepts",
+              "contracts/contracts",
+              "contracts/specifications"
             ]
           },
           {
-            "group": "Evaluate",
+            "group": "Verification",
             "pages": [
-              "evaluate/evaluation"
+              "verification/evaluation"
             ]
           },
           {
-            "group": "Enforce",
+            "group": "Runtime Certification",
             "pages": [
-              "enforce/runtime"
+              "certification/runtime"
             ]
           },
           {

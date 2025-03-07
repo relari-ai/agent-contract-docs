@@ -1,0 +1,154 @@
+---
+title: 'Define Contracts'
+description: 'Learn how to define contracts and requirements for AI agents'
+icon: 'code'
+---
+
+## Understanding Contracts
+
+Contracts define the expected behavior of an AI agent through requirements. They help ensure that agents follow business rules and handle interactions appropriately. A contract is essentially a set of requirements for a specific scenario.
+
+## Requirements
+
+Requirements are the atomic units of contracts. Each requirement represents a specific condition or constraint that must be satisfied. They come in three types, each serving a distinct purpose in controlling and validating agent behavior:
+
+<img alt="Requirement Light" className="block dark:hidden" src="/images/requirement-types.png" />
+<img alt="Requirement Dark" className="hidden dark:block" src="/images/requirement-types.png" />
+
+### Requirement Properties
+
+Each requirement has several properties:
+
+1. **name**: requirement definition in natural language
+2. **level** (optional):
+- `Level.MUST`: Critical requirements that must be met (default when level is not specified)
+- `Level.SHOULD`: Important but not critical requirements that represent best practices
+
+
+### 1. Preconditions
+
+Preconditions verify that necessary inputs or conditions are met before the agent proceeds. They serve two critical purposes:
+
+1. **Evaluation**: They help validate if the agent received the correct inputs to act. If preconditions aren't met (e.g., customer never provided an order number), the contract is invalidated since the agent didn't have the necessary information to proceed.
+
+2. **Runtime Detection**: They act as scenario detectors during runtime enforcement. When preconditions are met, we know we're in a specific scenario and can apply the corresponding path and post conditions.
+
+Example preconditions:
+
+```python
+from agent_contracts.core.verification.preconditions import Precondition # or: from relari_otel.specifications import Precondition, Level
+from agent_contracts.core.datatypes.specifications import Level
+
+Precondition("Customer provides order number") # level defaults to MUST
+
+Precondition("Customer provides proof of damage", level=Level.SHOULD)
+```
+
+### 2. Pathconditions
+
+Pathconditions are the most flexible type of requirement, designed to validate the agent's execution process. They can check:
+- Tool usage and sequence
+- Reasoning steps
+- Decision-making process
+- Any aspect of the execution trace
+
+Example pathconditions:
+
+```python
+from agent_contracts.core.verification.pathconditions import Pathcondition # or: from relari_otel.specifications import Pathcondition
+
+# Specify the correct tool use
+Pathcondition("Uses get_order_details tool wit the order number provided by user to get the shipping dates.")
+
+# Specify the correct path of execution
+Pathcondition("Confirm with the customer if they want a exchange or a refund.")
+Pathcondition("Check the eligibility against the return policy before proceeding with the return.")
+```
+
+### 3. Postconditions
+
+Postconditions verify the final output or result. They must specify what they're checking using the `on` field:
+
+- `on="output"`: Checks the final output of the system (e.g., database entries, generated reports)
+- `on="conversation"`: Checks every agent response message in a conversation system
+
+Examples with conditional requirements:
+
+```python
+from agent_contracts.core.verification.postconditions import Postcondition # or: from relari_otel.specifications import Postcondition
+
+# Checks the final output
+Postcondition("Provided summary in a table format that includes the total price, quantity and shipping dates", on="output")
+
+# Checks that the agent provided an estimated delivery as output as part of the conversation    
+Postcondition("Provide estimated delivery date", on="conversation")
+```
+
+:::tip
+The `Postcondition` class can be extended to use custom logic to check the output. For example, a function that queries the database to confirm if a transasction is made.
+:::
+
+
+## Creating Contracts
+
+A contract combines these requirements to fully specify how an agent should handle a scenario:
+
+```python
+from agent_contracts.core.datatypes.specifications import Contract
+
+refund_contract = Contract(
+    name="Damaged Item Refund Processing",
+    requirements=[
+        Precondition("Customer provides order number"),
+        Precondition("Customer provides damage description"),
+        Pathcondition("Document damage with photos"),
+        Pathcondition("Get department manager approval"),
+        Postcondition("Send return shipping label", if_="customer chose mail-in return", on="output"),
+        Postcondition("Provide estimated refund processing time", on="conversation")
+    ]
+)
+```
+
+## Best Practices for Writing Contracts
+
+When writing agent contracts, it's crucial to follow several key principles that ensure they provide meaningful verification while remaining practical to implement and maintain:
+
+1. *Clearly define the scope of each condition*
+   - Be specific about what each contract is intended to verify
+   - Establish clear boundaries between different contracts
+   - Use descriptive names that communicate the contract's purpose
+   - Document the intent behind each contract for future reference
+
+2. *Ensure conditions are measurable and verifiable*
+   - Avoid subjective criteria that cannot be consistently evaluated
+   - Define concrete success criteria for each condition
+   - Leverage deterministic verification methods whenever possible
+
+3. *Consider both functional and non-functional requirements*
+   - Include quality metrics when relevant
+   - Address security and privacy requirements explicitly
+   - Incorporate accessibility and usability criteria when appropriate
+
+4. *Account for edge cases and error conditions*
+   - Identify boundary conditions where behavior might change
+   - Define expected behavior for invalid or unexpected inputs
+   - Specify appropriate error handling and recovery mechanisms
+   - Include contracts that explicitly test failure modes and recovery paths
+
+5. *Maintain consistency across related contracts*
+   - Ensure terminology is used consistently across all contracts
+   - Avoid contradictory conditions between different contracts
+   - Create hierarchies or groupings of related contracts
+   - Establish naming conventions and structural patterns
+
+6. *Balance precision with adaptability*
+   - Make contracts specific enough to catch real issues but not so rigid they break with minor, acceptable variations
+   - Design contracts that can accommodate expected evolution of the system
+   - Document changes to contracts
+
+
+## Next Steps
+
+- Learn how to organize contracts into [scenarios and specifications](/define/specifications)
+- Understand how to [evaluate](/evaluate/evaluation) your agents against these contracts
+- Explore [runtime enforcement](/enforce/runtime) of contracts

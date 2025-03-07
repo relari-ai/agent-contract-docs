@@ -1,0 +1,111 @@
+---
+title: 'Run Verification'
+description: 'Evaluate your agent against contracts'
+icon: 'chart-line'
+---
+
+## Overview
+
+Agent Contracts provides powerful evaluation capabilities to verify if your agent's behavior matches the defined contracts. 
+
+The following guide assumes you have:
+1. Completed the steps in the [installation](/installation) guide.
+2. Created a specification for your agent and saved as `spec.yaml`. Check out [contracts](/contracts/contracts) to create a specification with contracts.
+
+### Verify a run
+
+<Steps>
+  <Step title="Run your application">
+    ```python app.py
+    async def runnable(data: Any): # If your agent is not async, you can remove the async and await keywords
+        agent_inputs = prepare_my_agent_input(data)
+        return my_agent_code(agent_inputs)
+
+    await Relari.eval_runner(specs=specs, runnable=runnable)
+    ```
+    Your traces will be available in the Jaeger UI (`localhost:16686`).
+  </Step>
+  <Step title="Retrieve the traces">
+    A run is a collection of traces. You can retrieve a run using the CLI.
+    In the agent contract environment you can use the `cli` command to list the traces or runs.
+    ```bash
+    poetry run cli ls trace --timespan 1d
+    ```
+    
+    <img src="/images/carbon.svg" alt="Run" />
+  </Step>
+  <Step title="Run verification on a run">
+    ```bash
+    poetry run cli verify run RUN_ID specs.yaml --output-dir ./verification_output
+    ```
+    The evaluations will be saved as `verify_RUN_ID.json` in the specified output directory.
+  </Step>
+</Steps>
+
+<Tip>
+You can get runs and traces by specifying either the date range or the timespan.
+- Explicit date range: `--start YYYY-MM-DD --end YYYY-MM-DD`
+- Relative timespan: `--timespan 24h` or `--timespan 7d`
+</Tip>
+
+### Verify a single trace
+
+<Steps>
+  <Step title="Create a trace">
+    ```python
+    with Relari.start_new_sample(scenario_id="scenario_A"):
+        run_agent_code(spec["scenario_A"].data)
+    ```
+  </Step>
+  <Step title="List available traces">
+    ```bash
+    poetry run cli ls trace --timespan 7d
+    ```
+  </Step>
+  <Step title="Verify the trace">
+    ```bash
+    poetry run cli verify trace TRACE_ID specs.json --output-dir ./output
+    ```
+    
+    Example output:
+    ```
+    MyContract (SATISFIED)
+    ╭─────────┬───────────┬──────────────────┬───────────╮
+    │ Type    │ Qualifier │ Requirement      │ Satisfied │
+    ├─────────┼───────────┼──────────────────┼───────────┤
+    │ INPUT   │ MUST     │ Valid JSON Input │ Yes       │
+    │ OUTPUT  │ MUST     │ Response Format  │ Yes       │
+    │ PROCESS │ SHOULD   │ Response Time    │ Yes       │
+    ╰─────────┴───────────┴──────────────────┴───────────╯
+    ```
+  </Step>
+  <Step title="Download trace (optional)">
+    If you'd like to download an individual trace, you can use the `get` command:
+    ```bash
+    poetry run cli get trace TRACE_ID --output-dir ./output
+    ```
+  </Step>
+</Steps>
+
+### Interpret the results
+
+The results are saved as `verify_RUN_ID.json` in the specified output directory.
+
+TODO: add example results
+
+
+## Next Steps
+
+- Explore [runtime enforcement](/enforce/runtime) capabilities
+- View [example contracts](/examples) for common use cases
+
+<Tip>
+When evaluating traces, make sure your specifications file contains all the contracts needed for evaluation. Missing contracts will result in incomplete evaluation results.
+</Tip>
+
+<Tip>
+For production systems, it's recommended to:
+- Set up automated evaluation pipelines
+- Monitor contract compliance trends
+- Store evaluation results for historical analysis
+</Tip>

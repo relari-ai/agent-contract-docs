@@ -4,6 +4,10 @@ description: 'Evaluate your agent against contracts'
 icon: 'chart-line'
 ---
 
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+</style>
+
 ## Overview
 
 Agent Contracts provides powerful evaluation capabilities to verify if your agent's behavior matches the defined contracts. 
@@ -32,7 +36,18 @@ The following guide assumes you have:
     poetry run cli ls trace --timespan 1d
     ```
     
-    <img src="/images/carbon.svg" alt="Run" />
+<pre style={{ fontFamily: '"Space Mono", monospace', lineHeight: '1.2em' }}>
+$poetry run cli ls trace --timespan 1d
+Listing traces from 2025-03-06 01:55:50to 2025-03-07 01:55:50...
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┓
+┃ Trace ID                         ┃ Project Name        ┃ Run ID   ┃ Specifications ID ┃ Scenario ID      ┃ Start Time          ┃ End Time            ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━┩
+│ 150a4110d9de4134e577f7f4c0c56bd4 │ langgraph-fin-agent │ cd26ad7e │ u8spz6vw          │ de_ratio         │ 2025-03-06 12:45:32 │ 2025-03-06 12:45:32 │
+│ a8ac6ae61209833f7abd723bdd175770 │ langgraph-fin-agent │ cd26ad7e │ u8spz6vw          │ nike_vs_adidas   │ 2025-03-06 12:45:32 │ 2025-03-06 12:45:32 │
+│ a7bb5cfe26811835333c087e151f5eda │ langgraph-fin-agent │ cd26ad7e │ u8spz6vw          │ tesla_income     │ 2025-03-06 12:45:32 │ 2025-03-06 12:45:32 │
+└──────────────────────────────────┴─────────────────────┴──────────┴───────────────────┴──────────────────┴─────────────────────┴─────────────────────┘
+</pre>
+    
   </Step>
   <Step title="Run verification on a run">
     ```bash
@@ -68,16 +83,16 @@ You can get runs and traces by specifying either the date range or the timespan.
     ```
     
     Example output:
-    ```
+    <pre style={{ fontFamily: '"Space Mono", monospace', lineHeight: '1.2em' }}>
     MyContract (SATISFIED)
     ╭─────────┬───────────┬──────────────────┬───────────╮
     │ Type    │ Qualifier │ Requirement      │ Satisfied │
     ├─────────┼───────────┼──────────────────┼───────────┤
-    │ INPUT   │ MUST     │ Valid JSON Input │ Yes       │
-    │ OUTPUT  │ MUST     │ Response Format  │ Yes       │
-    │ PROCESS │ SHOULD   │ Response Time    │ Yes       │
+    │ INPUT   │ MUST      │ Valid JSON Input │ Yes       │
+    │ OUTPUT  │ MUST      │ Response Format  │ Yes       │
+    │ PROCESS │ SHOULD    │ Response Time    │ Yes       │
     ╰─────────┴───────────┴──────────────────┴───────────╯
-    ```
+    </pre>
   </Step>
   <Step title="Download trace (optional)">
     If you'd like to download an individual trace, you can use the `get` command:

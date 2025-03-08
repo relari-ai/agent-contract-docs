@@ -18,13 +18,13 @@
             "pages": [
               "introduction",
               "why",
+              "core-concepts",
               "installation"
             ]
           },
           {
             "group": "Contracts",
             "pages": [
-              "contracts/core-concepts",
               "contracts/contracts",
               "contracts/specifications"
             ]
@@ -32,21 +32,21 @@
           {
             "group": "Verification",
             "pages": [
-              "verification/evaluation"
+              "verification/verification",
+              "verification/simulation"
             ]
           },
           {
-            "group": "Runtime Certification",
+            "group": "Certification",
             "pages": [
-              "certification/runtime"
+              "certification/certification"
             ]
           },
           {
-            "group": "Execute",
+            "group": "Resources",
             "pages": [
-              "execute/telemetry",
-              "execute/traces",
-              "execute/simulation"
+              "resources/changelog",
+              "resources/roadmap"
             ]
           }
         ]
@@ -57,8 +57,8 @@
           {
             "group": "Contracts in Action",
             "pages": [
-              "examples/customer-support-agent",
               "examples/finance-agent",
+              "examples/customer-support-agent",
               "examples/browser-agent"
             ]
           }
@@ -85,8 +85,8 @@
         "href": "https://github.com/relari-ai/agent-contracts"
       },
       {
-        "label": "Blog",
-        "href": "https://relari.ai/blog"
+        "label": "Whitepaper",
+        "href": "https://cdn.prod.website-files.com/669f7329c898141d69e16698/67c8ecfc0d3cf63f6331f437_main.pdf"
       }
     ],
     "primary": {

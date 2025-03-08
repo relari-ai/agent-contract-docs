@@ -1,7 +1,180 @@
 ---
 title: "Customer Support Agent"
-description: "Customer Support Agent"
+description: "Running Verification on a Customer Support Agent"
 icon: "user"
 ---
+## Agent Implementation
 
-## Customer Support Agent
+The customer support agent is implemented using LangGraph as a multi-agent system where a supervisor agent is responsible for routing each customer request to the right agent (customer agent for direct response to customer, database coodinator for database transactions, and knowledge agent for a RAG query to the company knowledge base).
+
+<img alt="Customer support agent" src="/images/customer-support-agent-langgraph.svg" />
+
+
+## Defining the contract specification
+
+This specification is made up of 4 scenarios: each containing the data for the testbot to simulate a scenario along with the requirements defined in contracts.
+
+```python define.py
+from relari_otel.specifications import Specifications, Scenario, Contract, Precondition, Pathcondition, Postcondition, Level
+
+refund_eligible = Scenario(
+    uuid="sce-refund-1",
+    name="Eligible Refund Request",
+    data={
+           "uid":"simulation-eligible-refund",
+           "context":[{"text":"Customer wants to return a damaged sweater to store credit"}],
+           "tasks":[
+              {
+                 "primary_task":"Request refund for damaged sweater. Don't ask questions about the process of return/refund, let the support agent guide you. Provide only one piece of information at a time.",
+                 "additional_info":"Here're some information you may provide to the agent if asked:\nOrder number: order_01JGQF1YAYNFDV874MKFR33CAA\nYour email: jane.doe@example.com\nPhotos of damage: Image url: https://m.media-amazon.com/images/I/A1mN82gBRyL._CLa%7C2140%2C2000%7CA1u0zfdjH1L.png%7C0%2C0%2C2140%2C2000%2B0.0%2C0.0%2C2140.0%2C2000.0_AC_SX679_.png\nYou discovered the damage after a week after purchase.\n The damage is on the sleaves - there's a hole.\nYou haven't worn the sweater.\nYou want a refund to store credit.",
+                 "expected_response":"Purchase was refunded, or if the issue was escalated to a manager."
+              }
+           ]
+    },
+    contracts=[
+        Contract(
+            uuid="con-475c011f",
+            name="con-refund-1",
+            requirements=[
+
+                # Checks if the agent received the right inputs
+                Precondition("Customer provides order number", level=Level.MUST),
+                Precondition("Customer provides email address if asked", level=Level.SHOULD),
+                Precondition("Customer should provided photo of damage to the sweater if asked", level=Level.SHOULD),
+
+                # Defines the correct trajectory
+                Pathcondition("Collect when the damage was first noticed, location of damage, and the photo of damage", level=Level.MUST),
+                Pathcondition("Check against the return policy and determine that the order is eligible for a refund", level=Level.MUST),
+
+                # Defines what the output should look like
+                Postcondition("Provide the refund id to the customer", on="output", level=Level.MUST),
+                Postcondition("Process refund request as a store credit", on="output", level=Level.MUST),
+            ],
+        )
+    ],
+)
+
+refund_ineligible = Scenario(
+    uuid="sce-refund-2",
+    name="Ineligible Refund Request",
+    data={
+        "uid": "sim-ineligible-refund",
+        "context": [
+            {
+            "text": "Customer wants to return a damaged sweater that was worn before damage (ineligible for refund)"
+            }
+        ],
+        "tasks": [
+            {
+            "primary_task": "Request refund for damaged sweater. Don't ask questions about the process of return/refund, let the support agent guide you. Provide only one piece of information at a time.",
+            "additional_info": "Here're some information you may provide to the agent if asked:\nOrder number: order_01JGQF1YAYNFDV874MKFR33CAA\nYour email: jane.doe@example.com\nPhotos of damage: Image url: https://m.media-amazon.com/images/I/A1mN82gBRyL._CLa%7C2140%2C2000%7CA1u0zfdjH1L.png%7C0%2C0%2C2140%2C2000%2B0.0%2C0.0%2C2140.0%2C2000.0_AC_SX679_.png\nYou discovered the damage after wearing it for 2 weeks.\nThe damage is on the sleeves - there's a tear.\nYou have worn the sweater multiple times.\nYou want a refund to original payment method.\nIf denied, you should argue for your case once and only once.",
+            "expected_response": "Refund request denied or escalated to a manager."
+            }
+        ]
+        },
+    contracts=[
+        Contract(
+            uuid="con-52e81d70",
+            name="con-refund-2",
+            requirements=[
+                Precondition("Customer provides or selects order number order_01JGQF1YAYNFDV874MKFR33CAA", level=Level.MUST),
+                Precondition("Customer provides email address if asked", level=Level.SHOULD),
+                Postcondition("Deny the refund request", on="output", level=Level.MUST),
+                Postcondition("Escalate to a manager if the customer insists on a refund", on="output", level=Level.SHOULD),
+                Pathcondition("Collect when the damage was first noticed, location of damage, and whether the item was worn", level=Level.MUST),
+                Pathcondition("Check against the return policy and determine that the order is not eligible for a refund", level=Level.MUST),
+            ],
+        )
+    ],
+)
+
+shipping_status = Scenario(
+    uuid="sce-shipping-1",
+    name="Shipping Status Inquiry",
+    data={
+        "uid": "sim-shipping-1",
+        "context": [
+            {
+                "text": "Customer inquiring about shipping status"
+            }
+        ],
+        "tasks": [
+            {
+                "primary_task": "Check shipping status for sweatshirt order order_01JGMMMPHCQM01FBAHY23FDA1",
+                "additional_info": "Provide your email (jane.doe@example.com) when asked",
+                "expected_response": "Should verify order details and say order doesn't exist"
+            }
+        ]
+    },
+    contracts=[
+        Contract(
+            uuid="con-shipping-1",
+            name="con-shipping-1",
+            requirements=[
+                Precondition("Customer has provided order number order_01JGMMMPHCQM01FBAHY23FDA1", level=Level.MUST),
+                Precondition("Customer has provided email address for verification", level=Level.SHOULD),
+                Postcondition("Inform customer that the order number does not exist in the system", on="output", level=Level.MUST),
+                Postcondition("Provides escalation contact information to customer", on="output", level=Level.SHOULD),
+                Pathcondition("Use email address to retrieve associated orders, and verify the order number doesn't exist", level=Level.MUST),
+                Pathcondition("Do NOT make up any shipping status, delivery dates, or any reason for the order not existing", level=Level.MUST),
+                Pathcondition("Do NOT ask for unnecessary personal information beyond order number and email", level=Level.SHOULD),
+            ],
+        )
+    ],
+)
+
+product_recommendation = Scenario(
+    uuid="sce-product-1",
+    name="Product Recommendation Request",
+    data={
+        "uid": "sim-product-1",
+        "context": [
+            {
+                "text": "Customer ask for product recommendation"
+            }
+        ],
+        "tasks": [
+            {
+                "primary_task": "Ask about what shirts are available (don't ask specifically about t-shirts)",
+                "additional_info": "You want tshirts and not sweatshirts (don't provide this information unless asked).",
+                "expected_response": "Should provide the details of the tshirts available."
+            }
+        ]
+    },
+    contracts=[
+        Contract(
+            uuid="con-product-1",
+            name="con-product-1",
+            requirements=[
+                Precondition("Customer express interest in shirts first (not t-shirts specifically)", level=Level.MUST),
+                Precondition("Customer specifies that they want t-shirts and not sweatshirts", level=Level.SHOULD),
+                Postcondition("Provide a comprehensive list of available t-shirts", on="output", level=Level.MUST),
+                Postcondition("Include key details like description, sizes, and available colors", on="output", level=Level.MUST),
+                Postcondition("Provide photos of t-shirts", on="output", level=Level.SHOULD),
+                Pathcondition("Ask customer for their preferences", level=Level.MUST),
+                Pathcondition("Clarify if customer want t-shirts or sweatshirts", level=Level.SHOULD),
+                Pathcondition("Do NOT recommend non-shirt products", level=Level.MUST),
+                Pathcondition("Do NOT make up product features or specifications", level=Level.MUST),
+            ],
+        )
+    ],
+)
+
+if __name__ == "__main__":
+    refund_spec = Specifications(scenarios=[
+        refund_eligible, 
+        refund_ineligible, 
+        shipping_status, 
+        product_recommendation
+    ])
+    refund_spec.save("src/contracts/customer-support-specs.json")
+```
+
+## Simulation
+
+<img alt="Customer support simulation light" className="block dark:hidden" src="/images/customer-support-simulation-light.png" />
+<img alt="Customer support simulation dark" className="hidden dark:block" src="/images/customer-support-simulation-dark.png" />
+
+## Verificaiton Results
+
+TO ADD results here

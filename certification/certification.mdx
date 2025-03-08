@@ -1,0 +1,86 @@
+---
+title: 'Runtime Certification'
+description: 'Certify your agent against contracts'
+icon: 'shield-check'
+---
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono&display=swap');
+</style>
+
+## Overview
+
+Agent Contracts provides powerful verification capabilities to certify if your agent's behavior matches the defined contracts. 
+
+### How certification works
+
+TODO: add sequence diagram
+
+
+
+### Certify your agent execution
+
+Prerequisites:
+1. Installed and set up agent contracts for runtime certification [installation](/installation).
+2. Created a runtime specification for your agent [contract specifications](/contracts/specifications).
+
+<Steps>
+  <Step title="Start your certification workers">
+    
+    Load the runtimespecification file of your application.
+    ```python .env
+    SPECIFICATION=specs.yaml
+    ```
+
+    Start the certification service.
+    ```bash
+    cd agent-contracts
+    make runtime-certification-workers
+    ```
+  </Step>
+  <Step title="Retrieve certificates in real-time">
+    ```python app.py
+    async def my_agent_code():
+      # Your agent code
+      # ...
+      Relari.wait_for_cert() # You can retrieve the certificate in real-time and take actions
+    
+    with Relari.start_new_sample():
+        await my_agent_code()
+    ```
+  </Step>
+</Steps>
+
+### How to use certificates
+
+Certificates are can be retrieved in real-time and be used to inform your application of how well the agent is following the contracts. You can use the information to take custom actions (e.g. escalate to human, send a notification, retry, etc.)
+
+```json .output/certify_150a4110d9de4134e577f7f4c0c56bd4.json
+{
+  "trace_id": "150a4110d9de4134e577f7f4c0c56bd4",
+  "specification_id": "u8spz6vw",
+  "contracts": {
+    "ctr-de-ratio": {
+      "status": "UNSATISFIED",
+      "requirements": {
+        "req-citcttbk": {
+          "satisfied": true,
+          "explanation": "The input is a question asking for information regarding the debt-to-equity ratio of car manufacturers, which directly relates to the requirement of questioning a specific financial metric, the debt-to-equity ratio. Therefore, the system input satisfies the property requirement."
+        },
+        "req-etez2dvj": {
+          "satisfied": false,
+          "explanation": "The requirement asks for the financials of at least 3 car manufacturers. However, the trace ultimately retrieved financial ratios for only 2 car manufacturers: Toyota Motor Corporation and Tesla Inc. Although the stock screener call returned multiple records, only the financials for TM and TSLA were processed and summarized."
+        },
+        "req-s3hswdz7": {
+          "satisfied": false,
+          "explanation": "The system output contains a summary of debt-to-equity ratios for car manufacturers presented in a markdown format table. However, a proper table representation is not visible due to formatting limitations of the markdown syntax in the context provided. Although the intended format is described as flowery text, it does not adhere to a standard, enforceable 'table' format, as required. Therefore, the requirement for an output table is not satisfied in its strictest interpretation, despite the presence of tabular data in the narrative."
+        },
+        "req-he519hyo": {
+          "satisfied": false,
+          "explanation": "The system output only mentions Toyota Motor Corporation and Tesla Inc., providing a debt-to-equity ratio for these two companies. However, the requirement explicitly states that the output must include at least Tesla, Ford, and General Motors. Since Ford and General Motors are not mentioned at all in the output, the requirement is not satisfied."
+        }
+      }
+    }
+  }
+}
+```

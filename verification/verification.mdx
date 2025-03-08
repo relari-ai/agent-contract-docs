@@ -1,0 +1,186 @@
+---
+title: 'Offline Verification'
+description: 'Evaluate your agent against contracts'
+icon: 'chart-line'
+---
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono&display=swap');
+</style>
+
+## Overview
+
+Agent Contracts provides powerful verification capabilities to evaluate if your agent's behavior matches the defined contracts. 
+
+<img src="/images/verification.svg" alt="Verification Workflow" />
+
+### Verify a run
+
+Prerequisites:
+1. Installed and set up agent contracts for offline verification [installation](/installation).
+2. Created an offline specification for your agent [contract specifications](/contracts/specifications).
+
+<Steps>
+  <Step title="Run your application through all predefined scenarios">
+    ```python app.py
+    async def runnable(data: Any): # If your agent is not async, you can remove the async and await keywords
+        agent_inputs = prepare_my_agent_input(data)
+        return my_agent_code(agent_inputs)
+
+    await Relari.eval_runner(specs=specs, runnable=runnable) # This will run your application through all predefined scenarios in the specification
+    ```
+    Your traces will be available in the Jaeger UI (`http://localhost:16686`).
+  </Step>
+  <Step title="Retrieve the run">
+    A run is a collection of traces. You can retrieve a run using the CLI.
+    In the agent contract environment you can use the `cli` command to list the traces or runs.
+    ```bash
+    poetry run cli ls trace --timespan 1d
+    ```
+<pre style={{ fontFamily: '"Space Mono", monospace', lineHeight: '1.2em' }}>
+$poetry run cli ls run --timespan 1d
+Listing runs from 2025-03-05 21:54:40 to 2025-03-07 21:54:40...
+┏━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┓
+┃ Run ID   ┃ Project Name        ┃ Specifications ID ┃ Start Time          ┃ End Time            ┃
+┡━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━┩
+│ cd26ad7e │ langgraph-fin-agent │ u8spz6vw          │ 2025-03-06 12:45:32 │ 2025-03-06 12:45:32 │
+└──────────┴─────────────────────┴───────────────────┴─────────────────────┴─────────────────────┘
+</pre>
+
+  </Step>
+  <Step title="Verify the run against the specification">
+    ```bash
+    poetry run cli verify run RUN_ID specs.json --timespan 1d
+    ```
+  
+  <pre style={{ fontFamily: '"Space Mono", monospace', lineHeight: '1.2em' }}>
+$poetry run cli verify run cd26ad7e fin-agent-022225.json --timespan 1d
+Verifying run cd26ad7e with specifications from .local/fin-agent-022225.json...
+Output will be saved to output/verify_cd26ad7e.json
+Contract Right Tickers: 100%|████████████████████████████████████████████████████████████████| 3/3 [00:05 < 00:00,  1.93s/it]
+Contract Right Tickers: 100%|████████████████████████████████████████████████████████████████| 4/4 [00:07 < 00:00,  1.91s/it]
+Contract Right Tickers: 100%|████████████████████████████████████████████████████████████████| 4/4 [00:08 < 00:00,  2.06s/it]
+───────────────────────────────────────── Trace 150a4110d9de4134e577f7f4c0c56bd4 ──────────────────────────────────────────
+                               Right Tickers (UNSATISFIED)
+┏━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓
+┃ Type ┃ Qualifier ┃ Requirement                                             ┃ Satisfied ┃
+┡━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━┩
+│ PRE  │ MUST      │ Question about the debt-to-equity ratio                 │ Yes       │
+│ PATH │ MUST      │ Retrieve the financials of at least 3 car manufacturers │ No        │
+│ POST │ MUST      │ Output a table                                          │ No        │
+│ POST │ SHOULD    │ Include at least Tesla, Ford, and General Motors        │ No        │
+└──────┴───────────┴─────────────────────────────────────────────────────────┴───────────┘
+───────────────────────────────────────── Trace a8ac6ae61209833f7abd723bdd175770 ──────────────────────────────────────────
+                                   Right Tickers (SATISFIED)                                    
+┏━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓
+┃ Type ┃ Qualifier ┃ Requirement                                                   ┃ Satisfied ┃
+┡━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━┩
+│ PRE  │ MUST      │ Comparison between Nike and Adidas                            │ Yes       │
+│ PATH │ MUST      │ Retrieve Nike financials with the ticker NKE                  │ Yes       │
+│ PATH │ MUST      │ Retrieve Adidas financials with the ticker ADDYY              │ Yes       │
+│ POST │ SHOULD    │ A numeric value for operating margins expressed in percentage │ Yes       │
+└──────┴───────────┴───────────────────────────────────────────────────────────────┴───────────┘
+───────────────────────────────────────── Trace a7bb5cfe26811835333c087e151f5eda ──────────────────────────────────────────
+                              Right Tickers (SATISFIED)                               
+┏━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓
+┃ Type ┃ Qualifier ┃ Requirement                                         ┃ Satisfied ┃
+┡━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━┩
+│ PRE  │ MUST      │ Question about Tesla's net income                   │ Yes       │
+│ PATH │ MUST      │ Retrieve Tesla's net income with the ticker TSLA    │ Yes       │
+│ POST │ SHOULD    │ A numeric value for net income expressed in dollars │ Yes       │
+└──────┴───────────┴─────────────────────────────────────────────────────┴───────────┘
+</pre>
+
+  </Step>
+</Steps>
+
+<Tip>
+You can get runs and traces by specifying either the date range or the timespan.
+- Explicit date range: `--start YYYY-MM-DD --end YYYY-MM-DD`
+- Relative timespan: `--timespan 24h` or `--timespan 7d`
+
+Date range or timespan is necessary for `ls` and `verify` commands to query the jaeger database for the traces and runs.
+</Tip>
+
+### Verify a single trace
+
+<Steps>
+  <Step title="Run your application on a single scenario">
+    ```python
+    with Relari.start_new_sample(scenario_id="scenario_A"):
+        await my_agent_code(specs["scenario_A"]["data"])
+    ```
+  </Step>
+  <Step title="List available traces">
+    ```bash
+    poetry run cli ls trace --timespan 7d
+    ```
+<pre style={{ fontFamily: '"Space Mono", monospace', lineHeight: '1.2em' }}>
+$poetry run cli ls trace --timespan 1d
+Listing traces from 2025-03-06 01:55:50 to 2025-03-07 01:55:50...
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┓
+┃ Trace ID                         ┃ Project Name        ┃ Run ID   ┃ Specifications ID ┃ Scenario ID      ┃ Start Time          ┃ End Time            ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━┩
+│ 150a4110d9de4134e577f7f4c0c56bd4 │ langgraph-fin-agent │ cd26ad7e │ u8spz6vw          │ de_ratio         │ 2025-03-06 12:45:32 │ 2025-03-06 12:45:32 │
+│ a8ac6ae61209833f7abd723bdd175770 │ langgraph-fin-agent │ cd26ad7e │ u8spz6vw          │ nike_vs_adidas   │ 2025-03-06 12:45:32 │ 2025-03-06 12:45:32 │
+│ a7bb5cfe26811835333c087e151f5eda │ langgraph-fin-agent │ cd26ad7e │ u8spz6vw          │ tesla_income     │ 2025-03-06 12:45:32 │ 2025-03-06 12:45:32 │
+└──────────────────────────────────┴─────────────────────┴──────────┴───────────────────┴──────────────────┴─────────────────────┴─────────────────────┘
+</pre>
+  </Step>
+  <Step title="Verify the trace">
+    ```bash
+    poetry run cli verify trace TRACE_ID specs.json --timespan 1d
+    ```
+
+    If you'd like to download an individual trace, you can use the `get` command:
+    ```bash
+    poetry run cli get trace TRACE_ID
+    ```
+  </Step>
+</Steps>
+
+### Interpret the results
+
+In addition to the verification result summary, the verification results are saved in the `.output` directory as `verify_RUN_ID.json` or `verify_TRACE_ID.json`. You can specify a different output directory using the `--output-dir` flag.
+
+Here's an example of the verification results. You can explore the detailed explanation for the requirement checking results.
+
+```json .output/verify_150a4110d9de4134e577f7f4c0c56bd4.json
+{
+  "trace_id": "150a4110d9de4134e577f7f4c0c56bd4",
+  "specification_id": "u8spz6vw",
+  "contracts": {
+    "ctr-de-ratio": {
+      "status": "UNSATISFIED",
+      "requirements": {
+        "req-citcttbk": {
+          "satisfied": true,
+          "explanation": "The input is a question asking for information regarding the debt-to-equity ratio of car manufacturers, which directly relates to the requirement of questioning a specific financial metric, the debt-to-equity ratio. Therefore, the system input satisfies the property requirement."
+        },
+        "req-etez2dvj": {
+          "satisfied": false,
+          "explanation": "The requirement asks for the financials of at least 3 car manufacturers. However, the trace ultimately retrieved financial ratios for only 2 car manufacturers: Toyota Motor Corporation and Tesla Inc. Although the stock screener call returned multiple records, only the financials for TM and TSLA were processed and summarized."
+        },
+        "req-s3hswdz7": {
+          "satisfied": false,
+          "explanation": "The system output contains a summary of debt-to-equity ratios for car manufacturers presented in a markdown format table. However, a proper table representation is not visible due to formatting limitations of the markdown syntax in the context provided. Although the intended format is described as flowery text, it does not adhere to a standard, enforceable 'table' format, as required. Therefore, the requirement for an output table is not satisfied in its strictest interpretation, despite the presence of tabular data in the narrative."
+        },
+        "req-he519hyo": {
+          "satisfied": false,
+          "explanation": "The system output only mentions Toyota Motor Corporation and Tesla Inc., providing a debt-to-equity ratio for these two companies. However, the requirement explicitly states that the output must include at least Tesla, Ford, and General Motors. Since Ford and General Motors are not mentioned at all in the output, the requirement is not satisfied."
+        }
+      }
+    }
+  }
+}
+```
+
+The results are saved as `verify_RUN_ID.json` in the specified output directory.
+
+TODO: add example results
+
+
+## Next Steps
+
+- Explore [runtime enforcement](/enforce/runtime) capabilities
+- View [example contracts](/examples) for common use cases

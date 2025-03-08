@@ -1,0 +1,29 @@
+---
+title: Simulation
+description: Test your agents with simulation
+icon: 'robot'
+---
+
+
+## Overview
+
+For conversational agents, a scenario is often a dynamic sequence of interactions between the agent an the user. 
+
+Simulation allows you to go beyond static test cases and verify your conversational agent against a dynamic testbot that simulates a user. 
+
+<img src="/images/verification_simulation.svg" alt="Verification Workflow with Simulation" />
+
+### Example: Customer Support Simulation
+
+In the following example, the pink bot is the customer support agent in test and the yellow bot is the simulated user testbot. 
+
+The testbot is given the task (e.g. refund, produt question), set of information (such as account, order number, etc.), and personality (e.g. friendly, anxious, etc.).
+
+The testbot is an LLM-based conversational agent itself and behaves non-deterministically. To qualify if a simulation run is a valid test run (if the testbot behaved correctly), we can use the `precondition` in the contract and only consider whether the agent-in-test satisfies the contract in runs where the preconditions are met.
+
+<img alt="Customer support simulation light" className="block dark:hidden" src="/images/customer-support-simulation-light.png" />
+<img alt="Customer support simulation dark" className="hidden dark:block" src="/images/customer-support-simulation-dark.png" />
+
+### Want to use simulation for your agent?
+
+Relari provides simulated testbot templates for a variety of conversational agent use cases. Please contact us at [founders@relari.ai](mailto:founders@relari.ai) to get access.

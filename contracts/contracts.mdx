@@ -29,9 +29,9 @@ Each requirement has several properties:
 
 Preconditions verify that necessary inputs or conditions are met before the agent proceeds. They serve two critical purposes:
 
-1. **Evaluation**: They help validate if the agent received the correct inputs to act. If preconditions aren't met (e.g., customer never provided an order number), the contract is invalidated since the agent didn't have the necessary information to proceed.
+1. **Offline Verification**: **OPTIONAL** to have Preconditions. They help validate if the agent received the correct inputs to act. If preconditions aren't met (e.g., customer never provided an order number), the contract is invalidated since the agent didn't have the necessary information to proceed.
 
-2. **Runtime Detection**: They act as scenario detectors during runtime enforcement. When preconditions are met, we know we're in a specific scenario and can apply the corresponding path and post conditions.
+2. **Runtime Certification**: **REQUIRED** to have Preconditions. They act as scenario detectors during runtime enforcement. When preconditions are met, we know we're in a specific scenario and can apply the corresponding path and post conditions.
 
 Example preconditions:
 
@@ -99,6 +99,7 @@ from agent_contracts.core.datatypes.specifications import Contract
 refund_contract = Contract(
     name="Damaged Item Refund Processing",
     requirements=[
+        Precondition("Customer ask for a refund"),
         Precondition("Customer provides order number"),
         Precondition("Customer provides damage description"),
         Pathcondition("Document damage with photos"),
@@ -149,6 +150,6 @@ When writing agent contracts, it's crucial to follow several key principles that
 
 ## Next Steps
 
-- Learn how to organize contracts into [scenarios and specifications](/define/specifications)
-- Understand how to [evaluate](/evaluate/evaluation) your agents against these contracts
-- Explore [runtime enforcement](/enforce/runtime) of contracts
+- Learn how to organize contracts into [scenarios and specifications](/contracts/specifications)
+- Understand how to [verify](/verification/verification) your agents against these contracts
+- Explore [certify](/certification/runtime) the contracts and take actions in runtime

@@ -4,4 +4,87 @@ description: "Browser Agent"
 icon: "browser"
 ---
 
-## Browser Agent
+## Agent Implementation
+
+The Agent is implemented using [browser-use](https://github.com/browser-use/browser-use).
+
+```python app.py
+"""Browser automation agent for scraping and summarizing HackerNews articles."""
+
+import asyncio
+from pathlib import Path
+
+from dotenv import load_dotenv
+from langchain_openai import ChatOpenAI
+from browser_use import Agent
+from relari_otel.otel import Relari
+from agent_contracts.core.datatypes.specifications import Specifications
+
+load_dotenv()
+
+Relari.init(project_name="browser-agent-cert", batch=False, certification_enabled=True)
+
+spec = Specifications.load(Path(".local/browser-agent-scenario-new.json"))
+
+async def main() -> None:
+    """Run all browser automation scenarios."""
+    for scenario in spec.scenarios:
+        with Relari.start_new_sample(scenario_id=scenario.uuid):
+            print(f"\nRunning scenario: {scenario.name}")
+            agent = Agent(
+                task=scenario.data,
+                llm=ChatOpenAI(model="gpt-4o"),
+            )
+            result = await agent.run()
+            print(f"Result: {result}")
+            cert = Relari.wait_for_cert(timeout=600)
+            print(f"Cert: {cert}")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+## Contract Specification
+
+```python define.py
+"""Defines the contract specifications for the browser agent scenario."""
+
+from agent_contracts.core.datatypes.specifications import (
+    Contract,
+    Scenario,
+    Specifications,
+)
+from agent_contracts.core.datatypes.specifications.requirement import Level
+from agent_contracts.core.verification.pathconditions import Pathcondition
+from agent_contracts.core.verification.postconditions import Postcondition
+from agent_contracts.core.verification.preconditions import Precondition
+
+
+hackernews_scenario = Scenario(
+    uuid="hackernews_summary",
+    name="HackerNews Top Articles",
+    data="Navigate to hackernews and read the comments section of 3 posts with the most comments. Scroll to read the entire comments section. Select the post with the most spicy discussion, summarize the post and themes of the comments in https://www.rapidtables.com/tools/notepad.html",
+    contracts=[
+        Contract(
+            uuid="ctr-hn-browse",
+            name="HackerNews Navigation",
+            requirements=[
+                Pathcondition("Must read 3 posts' hackernews comments sections"),
+                Pathcondition("For each comments section, scroll to the bottom and read the entire comments section"),
+                Postcondition(
+                    "Include summary of the post itself and the themes of the comments",
+                    on="output",
+                ),
+            ],
+        )
+    ],
+)
+
+spec = Specifications(scenarios=[hackernews_scenario])
+spec.save(".local/browser-agent-spec.json")
+```
+
+## Certification results
+
+Coming soon!

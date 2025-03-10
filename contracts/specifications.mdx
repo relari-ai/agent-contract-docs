@@ -6,17 +6,35 @@ icon: 'folder-tree'
 
 ## Understanding Scenarios
 
-Scenarios are test cases used for offline evaluation of AI agents. They combine test data with one or more contracts to verify agent behavior. Note that scenarios are specifically for offline evaluation - during runtime verification, contracts are applied dynamically based on the actual interaction.
+Scenarios are core to Agent Contracts as requirements are only relevant when tested against specific scenarios. 
+
+There are two types of scenarios, Offline Scenarios for [verification](/verification/verification) and Online Scenarios for [runtime certification](/certification/certification). 
+
+The difference lies in that in offline scenarios, you can provide as the specific `data` (e.g. a specific customer query) used to evaluate the agent. An online scenario however defines a set of `Precondition` that qualifies a scenario and activates the `pathconditions` and `postconditions` in the `contract`.
 
 ## Anatomy of a Scenario
 
-A scenario consists of three main components:
+A scenario consists of different components depending on whether it's offline or online:
 
-### 1. Test Data
-The input data that drives your test scenario. This can be any JSON structure that matches your system's requirements:
+All scenarios have the following components:
+- `name` - Name of the scenario
+- `data` - Input data to the scenario (ONLY used for offline verification)
+- `contracts` - Set of requirements to verify or certify against
+- `metadata` - Information about the test case
 
-#### Single-turn Systems
-For systems that process one-off requests:
+Within the contract, `precondition` serves different purposes:
+
+1. **Offline Verification**: **OPTIONAL** to have Preconditions. They help validate if the agent received the correct inputs to act. If preconditions aren't met (e.g., customer never provided an order number), the contract is invalidated since the agent didn't have the necessary information to proceed.
+
+2. **Runtime Certification**: **REQUIRED** to have Preconditions. They act as scenario detectors during runtime enforcement. When preconditions are met, we know we're in a specific scenario and can apply the corresponding path and post conditions.
+
+
+### Creating Offline Scenarios
+
+The `data` field of an offline contract should contain the input data that drives your test scenario. This can be any JSON structure that matches your system's requirements:
+
+#### Fixed-Input Verification
+For a verification that takes a fixed input:
 
 ```python
 single_turn_scenario = Scenario(
@@ -28,8 +46,8 @@ single_turn_scenario = Scenario(
 )
 ```
 
-#### Conversational Systems
-For systems with back-and-forth interactions:
+#### Dynamic-Input Verification
+For systems with back-and-forth interactions and require a dynamic input. The `data` can contain any information required to generate the dynamic inputs (e.g. initiation data used for simulation)
 
 ```python
 customer_support_scenario = Scenario(
@@ -58,86 +76,23 @@ customer_support_scenario = Scenario(
 )
 ```
 
-### 2. Contracts
-One or more contracts that define the requirements. A scenario often combines:
-- Broad contracts that apply to many scenarios (e.g., general customer service guidelines)
-- Specific contracts for the particular use case (e.g., refund processing rules)
+### Creating Online Scenarios
+For online scenarios, at least one `Precondition` is required in `Contract` to qualify the scenario.
 
-Example of multiple contracts in a scenario:
-
-```python
-# General customer service contract - applies to many scenarios
-general_support_contract = Contract(
-    name="Customer Service Standards",
+# Online scenario example - uses preconditions to qualify the scenario
+online_refund_contract = Contract(
+    name="Online Refund Processing",
     requirements=[
-        Precondition(
-            name="Customer inquiry is provided"
-        ),
-        Pathcondition(
-            name="Greet customer professionally",
-            level=Level.MUST
-        ),
-        Pathcondition(
-            name="Maintain professional tone",
-            level=Level.MUST
-        ),
-        Postcondition(
-            name="Confirm customer understanding",
-            on="conversation",
-            level=Level.SHOULD
-        )
+        Precondition("Customer asks for refund"),
+        Pathcondition("Verify order details"),
+        Pathcondition("Document damage description"),
+        Postcondition("Process refund or escalate appropriately")
     ]
 )
-
-# Specific contract for refund processing
-refund_specific_contract = Contract(
-    name="Refund Processing",
-    requirements=[
-        Precondition(
-            name="Customer provides order number"
-        ),
-        Pathcondition(
-            name="Verify order details",
-            level=Level.MUST
-        ),
-        Pathcondition(
-            name="Document damage description",
-            if_="item is being returned as damaged"
-        ),
-        Postcondition(
-            name="Process refund or escalate appropriately",
-            on="output",
-            level=Level.MUST
-        )
-    ]
-)
-
-# Scenario using both contracts
-damaged_item_scenario = Scenario(
-    name="Damaged Sweater Return",
-    data={
-        "context": [{"text": "Customer reporting damaged item"}],
-        "tasks": [{
-            "primary_task": "Process refund request",
-            "order_number": "ORD123"
-        }]
-    },
-    contracts=[
-        general_support_contract,  # Ensures good customer service
-        refund_specific_contract   # Ensures proper refund handling
-    ]
-)
-```
 
 ## Specifications: Defining System Behavior
 
-Specifications are comprehensive definitions of how your agent should behave across different scenarios. Think of them as a Product Requirements Document (PRD) in code form - they define the expected behavior, business rules, and quality standards your agent must meet.
-
-Each specification is a collection of scenarios that:
-- Defines the expected behavior in different situations
-- Establishes quality standards through contracts
-- Provides concrete examples of correct handling
-- Serves as a reference for development and testing
+Specifications are comprehensive definitions of how your agent should behave across different scenarios. Think of them as a Product Requirements Document (PRD) that is written in a scenario-based format - they define the expected behavior, business rules, and quality standards your agent must meet.
 
 Here's how to create and manage specifications:
 
@@ -160,30 +115,15 @@ support_specs = Specifications(scenarios=[
 ])
 
 # Save specifications for version control and sharing
-support_specs.save("specifications/customer_support_v1.json")
+support_specs.save("specifications/customer_support_v1.json") # or .yaml
 
 # Load existing specifications
 specs = Specifications.load("specifications/customer_support_v1.json")
 ```
 
-You can use these specifications to:
-1. **Guide Development**: Provide clear requirements for implementation
-2. **Evaluate Behavior**: Test how well your system meets the defined standards
-3. **Monitor Quality**: Track adherence to business rules over time
-4. **Document Functionality**: Serve as living documentation of system capabilities
-5. **Train & Fine-tune**: Use as examples for training or fine-tuning agents
-
-## Best Practices
-
-1. **Comprehensive Coverage**: Include various scenarios (happy paths, edge cases, error cases)
-2. **Realistic Data**: Use real-world examples and interactions
-3. **Clear Organization**: Group related scenarios in the same specification
-4. **Contract Reuse**: Share common contracts (like general guidelines) across scenarios
-5. **Detailed Metadata**: Use metadata to help organize and filter test cases
-6. **Version Control**: Track changes to your test suite over time
+You can then use the specifications for [offline verification](/verification/verification) and [runtime certification](/certification/certification).
 
 ## Next Steps
 
-- Learn how to [evaluate](/evaluate/evaluation) your specifications against agent behavior
-- Understand [runtime enforcement](/enforce/runtime) of contracts during live interactions
-- Explore [telemetry](/execute/telemetry) for monitoring contract compliance 
+- Learn how to [verify](/verification/verification) your specifications in offline tests
+- Understand [runtime certification](/certification/certification) of specifications during agent execution.

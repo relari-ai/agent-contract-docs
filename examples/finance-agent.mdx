@@ -12,6 +12,10 @@ The finance research agent was implemented using LangGraph. [See the implementat
 
 ## Contract Specification
 
+We define the following two scenarios and corresponding Pathcondition and Postcondition requirements. 
+
+Note that given that this agent is a single-turn agent with a fixed input, we do not need the Precondition.
+
 ```python define.py
 from relari_otel.specifications import Specifications, Scenario, Contract, Precondition, Pathcondition, Postcondition, Level
 
@@ -57,15 +61,17 @@ spec.save("spec.yaml") # Can also be saved as a json
 
 ## Verification Results
 
+The following is the verification results post-execution. We can see that the `con-comparison` and `con-analysis` contracts are satisfied while the `con-liquidity-analysis` contract is not.
+
 <pre style={{ fontFamily: '"Space Mono", monospace', lineHeight: '1.2em' }}>
-$poetry run cli verify run cd26ad7e fin-agent-022225.json --timespan 1d
-Verifying run cd26ad7e with specifications from .local/fin-agent-022225.json...
+$poetry run cli verify run cd26ad7e fin-agent-contract.json --timespan 1d
+Verifying run cd26ad7e with specifications from .local/fin-agent-contract.json...
 Output will be saved to output/verify_cd26ad7e.json
-Contract Right Tickers: 100%|████████████████████████████████████████████████████████████████| 3/3 [00:05 < 00:00,  1.93s/it]
-Contract Right Tickers: 100%|████████████████████████████████████████████████████████████████| 4/4 [00:07 < 00:00,  1.91s/it]
-Contract Right Tickers: 100%|████████████████████████████████████████████████████████████████| 4/4 [00:08 < 00:00,  2.06s/it]
+Contract Fin Scenarios: 100%|████████████████████████████████████████████████████████████████| 3/3 [00:05 < 00:00,  1.93s/it]
+Contract Fin Scenarios: 100%|████████████████████████████████████████████████████████████████| 4/4 [00:07 < 00:00,  1.91s/it]
+Contract Fin Scenarios: 100%|████████████████████████████████████████████████████████████████| 4/4 [00:08 < 00:00,  2.06s/it]
 ───────────────────────────────────────── Trace 150a4110d9de4134e577f7f4c0c56bd4 ──────────────────────────────────────────
-                               Right Tickers (UNSATISFIED)
+                               Fin Scenarios (UNSATISFIED)
 ┏━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓
 ┃ Type ┃ Qualifier ┃ Requirement                                             ┃ Satisfied ┃
 ┡━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━┩
@@ -75,7 +81,7 @@ Contract Right Tickers: 100%|█████████████████
 │ POST │ SHOULD    │ Include at least Tesla, Ford, and General Motors        │ No        │
 └──────┴───────────┴─────────────────────────────────────────────────────────┴───────────┘
 ───────────────────────────────────────── Trace a8ac6ae61209833f7abd723bdd175770 ──────────────────────────────────────────
-                                   Right Tickers (SATISFIED)                                    
+                                   Fin Scenarios (SATISFIED)                                    
 ┏━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓
 ┃ Type ┃ Qualifier ┃ Requirement                                                   ┃ Satisfied ┃
 ┡━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━┩
@@ -85,7 +91,7 @@ Contract Right Tickers: 100%|█████████████████
 │ POST │ SHOULD    │ A numeric value for operating margins expressed in percentage │ Yes       │
 └──────┴───────────┴───────────────────────────────────────────────────────────────┴───────────┘
 ───────────────────────────────────────── Trace a7bb5cfe26811835333c087e151f5eda ──────────────────────────────────────────
-                              Right Tickers (SATISFIED)                               
+                              Fin Scenarios (SATISFIED)                               
 ┏━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓
 ┃ Type ┃ Qualifier ┃ Requirement                                         ┃ Satisfied ┃
 ┡━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━┩
@@ -94,3 +100,5 @@ Contract Right Tickers: 100%|█████████████████
 │ POST │ SHOULD    │ A numeric value for net income expressed in dollars │ Yes       │
 └──────┴───────────┴─────────────────────────────────────────────────────┴───────────┘
 </pre>
+
+You can further inspect the detailed verification results with reasoning in the `output/verify_cd26ad7e.json` file.

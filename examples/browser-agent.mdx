@@ -12,6 +12,7 @@ The Agent is implemented using [browser-use](https://github.com/browser-use/brow
 """Browser automation agent for scraping and summarizing HackerNews articles."""
 
 import asyncio
+import json
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -38,7 +39,7 @@ async def main() -> None:
             result = await agent.run()
             print(f"Result: {result}")
             cert = Relari.wait_for_cert(timeout=600)
-            print(f"Cert: {cert}")
+            json.dump(cert, open("certificate.json", "w"))
 
 
 if __name__ == "__main__":
@@ -46,6 +47,10 @@ if __name__ == "__main__":
 ```
 
 ## Contract Specification
+
+We define a simple scenario with a single task in the browser and the following Pathcondition and Postcondition requirements.
+
+Note that we do not need a Precondition for this scenario as the agent is not given any additional input other than the initial task.
 
 ```python define.py
 """Defines the contract specifications for the browser agent scenario."""
@@ -87,4 +92,31 @@ spec.save(".local/browser-agent-spec.json")
 
 ## Certification results
 
-Coming soon!
+The following is an example runtime certificate received after the execution is completed. 
+
+```json certificate.json
+{
+  "trace_id": "f3ec911405e760de9d9c64664c26ed6b",
+  "specifications_id": "browser_agent_spec",
+  "scenario_id": "hackernews_summary",
+  "contracts": {
+    "ctr-hn-browse": {
+      "status": "CERTIFIED",
+      "info": {
+        "pathcondition_1": {
+          "satisfied": true,
+          "explanation": "The trace confirms that the agent successfully read the comments sections of 3 different HackerNews posts as required."
+        },
+        "pathcondition_2": {
+          "satisfied": true,
+          "explanation": "The trace shows that for each post, the agent scrolled through and read the entire comments section, ensuring complete coverage of the discussion."
+        },
+        "postcondition_1": {
+          "satisfied": true,
+          "explanation": "The agent produced a comprehensive summary in the notepad tool that included both the original post content and the main themes emerging from the comments discussion."
+        }
+      }
+    }
+  }
+}
+```

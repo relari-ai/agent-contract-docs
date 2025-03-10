@@ -10,12 +10,20 @@ icon: 'shield-check'
 
 ## Overview
 
-Agent Contracts provides powerful verification capabilities to certify if your agent's behavior matches the defined contracts. 
+Agent Contracts can be used in runtime to certify if your agent's behavior matches the defined contracts. 
 
 ### How certification works
 
-TODO: add sequence diagram
+Certification in AI systems refers to the process of attaching some form of proof, or certificates, to system outputs that verify their correctness according to predefined contracts.
+A certificate serves as a guarantee that the output satisfies all specified requirements - not just in terms of the final result, but also in how that result was obtained.
 
+This certification process transforms what would otherwise be a "black box" AI output into a verifiable result with a clear chain of evidence demonstrating its correctness.
+The certificate itself contains the proof that each contract condition was satisfied, and the evidence that the system followed the correct process, allowing any party to independently verify the system's behavior.
+
+The power of certification lies in its ability to provide objective, measurable guarantees about system behavior.
+Rather than simply trusting that an AI system "probably" did the right thing, certification gives us concrete evidence that it definitively followed all required steps and produced a valid result according to our specifications.
+
+<img src="/images/Certification-Sequence.png" alt="certification sequence diagram" />
 
 
 ### Certify your agent execution
@@ -55,29 +63,42 @@ Prerequisites:
 
 Certificates are can be retrieved in real-time and be used to inform your application of how well the agent is following the contracts. You can use the information to take custom actions (e.g. escalate to human, send a notification, retry, etc.)
 
-```json .output/certify_150a4110d9de4134e577f7f4c0c56bd4.json
+```json certificate.json
 {
-  "trace_id": "150a4110d9de4134e577f7f4c0c56bd4",
-  "specification_id": "u8spz6vw",
+  "trace_id": "f3ec911405e760de9d9c64664c26ed6b",
+  "specifications_id": "k5ssb3ge",
+  "scenario_id": "sce-shipping-1",
   "contracts": {
-    "ctr-de-ratio": {
-      "status": "UNSATISFIED",
-      "requirements": {
-        "req-citcttbk": {
+    "con-shipping-1_1": {
+      "status": "CERTIFIED",
+      "info": {
+        "req-qbwk88dr": {
           "satisfied": true,
-          "explanation": "The input is a question asking for information regarding the debt-to-equity ratio of car manufacturers, which directly relates to the requirement of questioning a specific financial metric, the debt-to-equity ratio. Therefore, the system input satisfies the property requirement."
+          "explanation": "The trace confirms that the customer provided the order number 'order_01JGMMMPHCQM01FBAHY23FDA1' in the system input, fulfilling the requirement of order identification."
         },
-        "req-etez2dvj": {
-          "satisfied": false,
-          "explanation": "The requirement asks for the financials of at least 3 car manufacturers. However, the trace ultimately retrieved financial ratios for only 2 car manufacturers: Toyota Motor Corporation and Tesla Inc. Although the stock screener call returned multiple records, only the financials for TM and TSLA were processed and summarized."
+        "req-wxly9mf4": {
+          "satisfied": true,
+          "explanation": "The trace shows that the customer supplied their email address (jane.doe@example.com) as required, enabling the system to verify their identity and retrieve order details."
         },
-        "req-s3hswdz7": {
-          "satisfied": false,
-          "explanation": "The system output contains a summary of debt-to-equity ratios for car manufacturers presented in a markdown format table. However, a proper table representation is not visible due to formatting limitations of the markdown syntax in the context provided. Although the intended format is described as flowery text, it does not adhere to a standard, enforceable 'table' format, as required. Therefore, the requirement for an output table is not satisfied in its strictest interpretation, despite the presence of tabular data in the narrative."
+        "req-zjo1dfnv": {
+          "satisfied": true,
+          "explanation": "The trace confirms that the system attempted to retrieve the order details using the provided order number and email address. Since the order was not found, the system verified and confirmed that the order does not exist in the database, satisfying the requirement."
         },
-        "req-he519hyo": {
-          "satisfied": false,
-          "explanation": "The system output only mentions Toyota Motor Corporation and Tesla Inc., providing a debt-to-equity ratio for these two companies. However, the requirement explicitly states that the output must include at least Tesla, Ford, and General Motors. Since Ford and General Motors are not mentioned at all in the output, the requirement is not satisfied."
+        "req-he899akj": {
+          "satisfied": true,
+          "explanation": "The system accurately reported that the order number does not exist without fabricating shipping details, estimated delivery dates, or misleading information, thereby fulfilling the requirement."
+        },
+        "req-8yqyw5ea": {
+          "satisfied": true,
+          "explanation": "The trace demonstrates that only the necessary customer information (order number and email) was requested. No extraneous personal details were solicited, ensuring compliance with data privacy requirements."
+        },
+        "req-h8oumlrk": {
+          "satisfied": true,
+          "explanation": "The system explicitly stated that the order number provided does not exist in the database. This clear communication ensures that the customer is correctly informed about the nonexistence of the order, fulfilling the requirement."
+        },
+        "req-7p17btif": {
+          "satisfied": true,
+          "explanation": "The trace shows that the system provided customer support escalation details, including a phone number and an email address, ensuring that the user has the necessary information to seek further assistance."
         }
       }
     }

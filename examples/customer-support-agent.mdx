@@ -3,6 +3,11 @@ title: "Customer Support Agent"
 description: "Running Verification on a Customer Support Agent"
 icon: "user"
 ---
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono&display=swap');
+</style>
+
 ## Agent Implementation
 
 The customer support agent is implemented using LangGraph as a multi-agent system where a supervisor agent is responsible for routing each customer request to the right agent (customer agent for direct response to customer, database coodinator for database transactions, and knowledge agent for a RAG query to the company knowledge base).
@@ -161,20 +166,168 @@ product_recommendation = Scenario(
 )
 
 if __name__ == "__main__":
-    refund_spec = Specifications(scenarios=[
+    customer_support_specs = Specifications(scenarios=[
         refund_eligible, 
         refund_ineligible, 
         shipping_status, 
         product_recommendation
     ])
-    refund_spec.save("src/contracts/customer-support-specs.json")
+    customer_support_specs.save("customer-support-specs.json")
 ```
 
-## Simulation
+## Run Simulation
+
+Conversations are simulated using the Relari Testbot for each scenario. Check out more details in the [Simulation](/verification/simulation) section.
 
 <img alt="Customer support simulation light" className="block dark:hidden" src="/images/customer-support-simulation-light.png" />
 <img alt="Customer support simulation dark" className="hidden dark:block" src="/images/customer-support-simulation-dark.png" />
 
-## Verificaiton Results
+## Verification Results
 
-TO ADD results here
+The following is the verification results post-execution. We can see that the `con-shipping-1` and `con-product-1` contract are satisfied while the `con-refund-1` and `con-refund-2` contracts are not. 
+
+The detailed verification results with reasoning are saved in the `output/verify_4cf4b3f5.json` file.
+
+  <pre style={{ fontFamily: '"Space Mono", monospace', lineHeight: '1.2em' }}>
+
+
+────────────────────────────────────────────────────── Trace f3ec911405e760de9d9c64664c26ed6b ──────────────────────────────────────────────────────
+                                                   con-shipping-1 (SATISFIED)                                                    
+┏━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓
+┃ Type ┃ Qualifier ┃ Requirement                                                                                  ┃ Satisfied ┃
+┡━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━┩
+│ PRE  │ MUST      │ Customer has provided order number order_01JGMMMPHCQM01FBAHY23FDA1                           │ Yes        │
+│ PRE  │ SHOULD    │ Customer has provided email address for verification                                         │ Yes        │
+│ PATH │ MUST      │ Use email address to retrieve associated orders, and verify the order number doesn't exist   │ Yes       │
+│ PATH │ MUST      │ Do NOT make up any shipping status, delivery dates, or any reason for the order not existing │ Yes       │
+│ PATH │ SHOULD    │ Do NOT ask for unnecessary personal information beyond order number and email                │ Yes       │
+│ POST │ MUST      │ Inform customer that the order number does not exist in the system                           │ Yes        │
+│ POST │ SHOULD    │ Provides escalation contact information to customer                                          │ No        │
+└──────┴───────────┴──────────────────────────────────────────────────────────────────────────────────────────────┴───────────┘
+────────────────────────────────────────────────────── Trace 73b754a05920cc9ce5d26abbb73fe0d4 ──────────────────────────────────────────────────────
+                                                   con-refund-2_1 (UNSATISFIED)                                                    
+┏━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓
+┃ Type ┃ Qualifier ┃ Requirement                                                                                  ┃ Satisfied ┃
+┡━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━┩
+│ PRE  │ MUST      │ Customer provides or selects order number order_01JGQF1YAYNFDV874MKFR33CAA                   │ Yes        │
+│ PRE  │ SHOULD    │ Customer provides email address if asked                                                     │ Yes        │
+│ PATH │ MUST      │ Collect when the damage was first noticed, location of damage, and whether the item was worn │ Yes        │
+│ PATH │ MUST      │ Check against the return policy and determine that the order is not eligible for a refund    │ Yes        │
+│ POST │ MUST      │ Deny the refund request                                                                      │ No        │
+│ POST │ SHOULD    │ Escalate to a manager if the customer insists on a refund                                    │ No        │
+└──────┴───────────┴──────────────────────────────────────────────────────────────────────────────────────────────┴───────────┘
+────────────────────────────────────────────────────── Trace ed602aa95bbb251eb48e8f8ff56c8980 ──────────────────────────────────────────────────────
+                                                 con-refund-1 (UNSATISFIED)                                                  
+┏━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓
+┃ Type ┃ Qualifier ┃ Requirement                                                                            ┃ Satisfied ┃
+┡━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━┩
+│ PRE  │ MUST      │ Customer provides order number                                                         │ Yes        │
+│ PRE  │ SHOULD    │ Customer provides email address if asked                                               │ No        │
+│ PRE  │ SHOULD    │ Customer should provided photo of damage to the sweater if asked                       │ No        │
+│ PATH │ MUST      │ Collect when the damage was first noticed, location of damage, and the photo of damage │ No        │
+│ PATH │ MUST      │ Check against the return policy and determine that the order is eligible for a refund  │ Yes       │
+│ POST │ MUST      │ Provide the refund id to the customer                                                  │ Yes        │
+│ POST │ MUST      │ Process refund request as a store credit                                               │ No        │
+└──────┴───────────┴────────────────────────────────────────────────────────────────────────────────────────┴───────────┘
+────────────────────────────────────────────────────── Trace 65d7b69d78be0a80638dd1304c20f0fa ──────────────────────────────────────────────────────
+                                        con-product-1 (SATISFIED)                                         
+┏━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓
+┃ Type ┃ Qualifier ┃ Requirement                                                           ┃ Satisfied ┃
+┡━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━┩
+│ PRE  │ MUST      │ Customer express interest in shirts first (not t-shirts specifically) │ Yes        │
+│ PRE  │ SHOULD    │ Customer specifies that they want t-shirts and not sweatshirts        │ Yes        │
+│ PATH │ MUST      │ Ask customer for their preferences                                    │ Yes        │
+│ PATH │ SHOULD    │ Clarify if customer want t-shirts or sweatshirts                      │ No        │
+│ PATH │ MUST      │ Do NOT recommend non-shirt products                                   │ Yes       │
+│ PATH │ MUST      │ Do NOT make up product features or specifications                     │ Yes       │
+│ POST │ MUST      │ Provide a comprehensive list of available t-shirts                    │ Yes       │
+│ POST │ MUST      │ Include key details like description, sizes, and available colors     │ Yes       │
+│ POST │ SHOULD    │ Provide photos of t-shirts                                            │ Yes       │
+└──────┴───────────┴───────────────────────────────────────────────────────────────────────┴───────────┘
+
+</pre>
+
+
+## Example Certificate at Runtime
+
+The following are two example runtime certificate received during the execution.
+
+```json certificate.json
+{
+  "trace_id": "f3ec911405e760de9d9c64664c26ed6b",
+  "specifications_id": "k5ssb3ge",
+  "scenario_id": "sce-shipping-1",
+  "contracts": {
+    "con-shipping-1_1": {
+      "status": "CERTIFIED",
+      "info": {
+        "req-qbwk88dr": {
+          "satisfied": true,
+          "explanation": "The trace confirms that the customer provided the order number 'order_01JGMMMPHCQM01FBAHY23FDA1' in the system input, fulfilling the requirement of order identification."
+        },
+        "req-wxly9mf4": {
+          "satisfied": true,
+          "explanation": "The trace shows that the customer supplied their email address (jane.doe@example.com) as required, enabling the system to verify their identity and retrieve order details."
+        },
+        "req-zjo1dfnv": {
+          "satisfied": true,
+          "explanation": "The trace confirms that the system attempted to retrieve the order details using the provided order number and email address. Since the order was not found, the system verified and confirmed that the order does not exist in the database, satisfying the requirement."
+        },
+        "req-he899akj": {
+          "satisfied": true,
+          "explanation": "The system accurately reported that the order number does not exist without fabricating shipping details, estimated delivery dates, or misleading information, thereby fulfilling the requirement."
+        },
+        "req-8yqyw5ea": {
+          "satisfied": true,
+          "explanation": "The trace demonstrates that only the necessary customer information (order number and email) was requested. No extraneous personal details were solicited, ensuring compliance with data privacy requirements."
+        },
+        "req-h8oumlrk": {
+          "satisfied": true,
+          "explanation": "The system explicitly stated that the order number provided does not exist in the database. This clear communication ensures that the customer is correctly informed about the nonexistence of the order, fulfilling the requirement."
+        },
+        "req-7p17btif": {
+          "satisfied": true,
+          "explanation": "The trace shows that the system provided customer support escalation details, including a phone number and an email address, ensuring that the user has the necessary information to seek further assistance."
+        }
+      }
+    }
+  }
+}
+```
+
+```json certificate.json
+{
+  "trace_id": "73b754a05920cc9ce5d26abbb73fe0d4",
+  "specifications_id": "k5ssb3ge",
+  "scenario_id": "sce-refund-2_1",
+  "contracts": {
+    "con-52e81d70": {
+      "status": "RUNNING",
+      "info": {
+        "req-u74uqpca": {
+          "satisfied": true,
+          "explanation": "The trace confirms that the customer provided a valid order number for reference, meeting the requirement for initiating a refund request."
+        },
+        "req-y3nwiq46": {
+          "satisfied": true,
+          "explanation": "The customer supplied their email address as requested, ensuring successful identity verification and compliance with refund processing requirements."
+        },
+        "req-2zw6dds6": {
+          "satisfied": true,
+          "explanation": "The trace confirms that the agent captured the location of the damage, when it was first noticed, and whether the item had been used, satisfying the requirement for collecting complete damage details."
+        },
+        "req-vgkoang1": {
+          "satisfied": false,
+          "explanation": "The requirement states that the order is not eligible for a refund, but the trace indicates that the system approved the refund despite the policy."
+        },
+        "req-09nf7klc": {
+          "explanation": "Postcondition is only activated upon completion of the trace."
+        },
+        "req-2oj7gxko": {
+          "explanation": "Postcondition is only activated upon completion of the trace."
+        }
+      }
+    }
+  }
+}
+```

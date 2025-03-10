@@ -41,13 +41,6 @@
             "pages": [
               "certification/certification"
             ]
-          },
-          {
-            "group": "Resources",
-            "pages": [
-              "resources/changelog",
-              "resources/roadmap"
-            ]
           }
         ]
       },

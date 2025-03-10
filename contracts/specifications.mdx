@@ -4,7 +4,7 @@ description: 'Learn how to organize test cases for offline evaluation of AI agen
 icon: 'folder-tree'
 ---
 
-## Understanding Scenarios
+# Scenarios
 
 Scenarios are core to Agent Contracts as requirements are only relevant when tested against specific scenarios. 
 
@@ -29,11 +29,11 @@ Within the contract, `precondition` serves different purposes:
 2. **Runtime Certification**: **REQUIRED** to have Preconditions. They act as scenario detectors during runtime enforcement. When preconditions are met, we know we're in a specific scenario and can apply the corresponding path and post conditions.
 
 
-### Creating Offline Scenarios
+## Creating Offline Scenarios
 
 The `data` field of an offline contract should contain the input data that drives your test scenario. This can be any JSON structure that matches your system's requirements:
 
-#### Fixed-Input Verification
+### Fixed-Input Verification
 For a verification that takes a fixed input:
 
 ```python
@@ -46,7 +46,7 @@ single_turn_scenario = Scenario(
 )
 ```
 
-#### Dynamic-Input Verification
+### Dynamic-Input Verification
 For systems with back-and-forth interactions and require a dynamic input. The `data` can contain any information required to generate the dynamic inputs (e.g. initiation data used for simulation)
 
 ```python
@@ -76,23 +76,40 @@ customer_support_scenario = Scenario(
 )
 ```
 
-### Creating Online Scenarios
+## Creating Online Scenarios
 For online scenarios, at least one `Precondition` is required in `Contract` to qualify the scenario.
 
-# Online scenario example - uses preconditions to qualify the scenario
-online_refund_contract = Contract(
-    name="Online Refund Processing",
+### Declaring scenarios with Preconditions
+
+Preconditions are used to qualify a contract. If the preconditions are met, the contract certifer will start applying the Pathconditions during runtime and validate the Postcondition upon conclusion of execution.
+
+```python
+refund_with_damage_contract = Contract(
+    name="Refund request with damage",
     requirements=[
         Precondition("Customer asks for refund"),
+        Precondition("Customer mentions damage as reason")
         Pathcondition("Verify order details"),
         Pathcondition("Document damage description"),
-        Postcondition("Process refund or escalate appropriately")
+        Postcondition("Process refund if damage is eligible for refund or escalate appropriately")
     ]
 )
 
-## Specifications: Defining System Behavior
+shipping_inquery_contract = Contract(
+    name="Shipping inquiry",
+    requirements=[
+        Precondition("Customer asks about shipping status of an order"),
+        Pathcondition("Check order details using get_order_details function"),
+        Postcondition("Provide shipping status with detailed tracking information")
+    ]
+)
+```
+
+# Specifications
 
 Specifications are comprehensive definitions of how your agent should behave across different scenarios. Think of them as a Product Requirements Document (PRD) that is written in a scenario-based format - they define the expected behavior, business rules, and quality standards your agent must meet.
+
+Specifications as a class can be used to manage both offline and online scenarios.
 
 Here's how to create and manage specifications:
 

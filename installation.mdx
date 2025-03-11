@@ -42,10 +42,12 @@ In this section, we will show how to quickly instrument your agent code to colle
   </Step>
   <Step title="Option B: Set up Agent Contracts for Runtime Certification">
     
-    Start agent contract service for runtime certification.
+    Start agent contract service for runtime certification. You will need to set up a `specs.json` that specifies the runtime scenarios before starting the service (more details in [Scenarios and Specifications](/contracts/specifications)).
 
     ```bash
     cd agent-contracts
+    export RUNTIME_VERIFICATION_CONFIG="configs/runtime-certification.yaml" && \
+    export RUNTIME_VERIFICATION_SPECS="specs.json" && \
     make docker-runtime-certification
     ```
 

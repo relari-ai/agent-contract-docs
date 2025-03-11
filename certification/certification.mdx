@@ -34,16 +34,11 @@ Prerequisites:
 
 <Steps>
   <Step title="Start your certification workers">
-    
-    Load the runtimespecification file of your application.
-    ```python .env
-    SPECIFICATION=specs.yaml
-    ```
-
-    Start the certification service.
+    Start the certification service with the `specs.json` file and the `runtime-certification.yaml` configuration file.
     ```bash
-    cd agent-contracts
-    make runtime-certification-workers
+    export RUNTIME_VERIFICATION_CONFIG="configs/runtime-certification.yaml" && \
+export RUNTIME_VERIFICATION_SPECS="specs.json" && \
+poetry run python3 agent_contracts/certification/runtime_verification.py 
     ```
   </Step>
   <Step title="Retrieve certificates in real-time">

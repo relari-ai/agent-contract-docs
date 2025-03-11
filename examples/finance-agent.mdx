@@ -6,72 +6,130 @@ icon: "dollar-sign"
 
 ## Agent Implementation
 
-The finance research agent was implemented using LangGraph. [See the implementation here](https://github.com/relari-ai/agent-examples).
+The finance research agent was implemented using LangGraph with the following multi-agent architecture. [Try for yourself](https://github.com/relari-ai/agent-examples).
 
 <img alt="Financial Research Agent" src="/images/fin-agent.png" />
 
 ## Contract Specification
 
-We define the following two scenarios and corresponding Pathcondition and Postcondition requirements. 
+We can now define the scenarios and corresponding contract in a `Specification`.
 
-Note that given that this agent is a single-turn agent with a fixed input, we do not need the Precondition.
+<note>
+
+Note that given that this agent is a single-turn system with a fixed input, we technically do not need the Precondition for [verification](/verification/verification). The `Precondition` in the examples below show the broaded definition for the scenario that could be used for [runtime certification](/certification/certification).
+
+</note>
 
 ```python define.py
 from relari_otel.specifications import Specifications, Scenario, Contract, Precondition, Pathcondition, Postcondition, Level
 
-# Define a specific scenario and the corresponding contract requirements.
-comparison_scenario = Scenario(
-    uuid="sce-comparison",
-    name="Comparing financials of companies",
-    data="Does Tesla have a higher net income margin than its US competitors?"
-    contracts = [
+# Tesla Income Scenario
+tesla_income_scenario = Scenario(
+    uuid="tesla_income",
+    name="Tesla Income",
+    data="How has Tesla's net income changed over the last five years?",
+    contracts=[
         Contract(
-            uuid="con-comparison",
+            uuid="ctr-tsla-income",
+            name="Right Tickers",
             requirements=[
-                Pathcondition("Uses get_financial_ratios tool to get financial data for each company"),
-                Pathcondition("Should include Ford, GM, and Rivian in the comparison", level=Level.SHOULD),
-                Postcondition("Gives a clear yes/no answer and the data to suppor the answer", on="output"),
+                Precondition("Question about Tesla's net income", level=Level.MUST),
+                Pathcondition("Retrieve Tesla's net income with the ticker TSLA", level=Level.MUST),
+                Postcondition("A numeric value for net income expressed in dollars", level=Level.SHOULD, on="output")
             ]
         )
     ]
 )
 
-analysis_scenario = Scenario(
-    uuid="sce-liquidity-analysis",
-    name="Analyze liquidity of a company",
-    data="What is the liquidity of Tesla?"
-    contracts = [
+# Nike vs Adidas Scenario
+nike_adidas_scenario = Scenario(
+    uuid="nike_vs_adidas",
+    name="Nike vs Adidas",
+    data="Between Nike and Adidas, which company has stronger operating margins?",
+    contracts=[
         Contract(
-            uuid="con-analysis",
+            uuid="ctr-nike-vs-adidas",
+            name="Right Tickers",
             requirements=[
-                Pathcondition("Uses get_balance_sheet tool to retrieve the balance sheet data"),
-                Pathcondition("Should include current ratio, quick ratio, and cash ratio", level=Level.SHOULD),
-                Postcondition("Summarize the liquidity of the company and its key ratios", on="output"),
+                Precondition("Comparison between Nike and Adidas", level=Level.MUST),
+                Pathcondition("Retrieve Nike financials with the ticker NKE", level=Level.MUST),
+                Pathcondition("Retrieve Adidas financials with the ticker ADDYY", level=Level.MUST),
+                Postcondition("A numeric value for operating margins expressed in percentage", level=Level.SHOULD, on="output")
             ]
         )
     ]
 )
 
-# Save a collection of scenarios in a Specification to be used for verification.
+# Debt-to-Equity Ratio Scenario
+de_ratio_scenario = Scenario(
+    uuid="de_ratio",
+    name="Debt-to-Equity Ratio",
+    data="Which car manufacturer has the highest debt-to-equity ratio right now?",
+    contracts=[
+        Contract(
+            uuid="ctr-de-ratio",
+            name="Right Tickers",
+            requirements=[
+                Precondition("Question about the debt-to-equity ratio", level=Level.MUST),
+                Pathcondition("Retrieve the financials of at least 3 car manufacturers", level=Level.MUST),
+                Postcondition("Output a table", level=Level.MUST, on="output"),
+                Postcondition("Include at least Tesla, Ford, and General Motors", level=Level.SHOULD, on="output")
+            ]
+        )
+    ]
+)
+
+# Save a collection of scenarios in a Specification to be used for verification
 spec = Specifications(
-    scenarios=[comparison_scenario, analysis_scenario]
+    uuid="yw936jmp",
+    scenarios=[tesla_income_scenario, nike_adidas_scenario, de_ratio_scenario]
 )
-spec.save("spec.yaml") # Can also be saved as a json
+spec.save("specification.json")
 ```
+
+Check out the outputed json file: [`specification.json`](https://github.com/relari-ai/agent-examples/blob/main/apps/langgraph-fin-agent/specifications.json).
+
+## Running the Agent
+
+Start the verification server from the `agent-contracts` directory (make sure you've downloaded and installed `agent-contracts` repo [installation](/installation)). The verification server includes the telemetry collector necessary to receive the traces from the agent instrumented with `relari-otel`.
+
+```
+cd agent-contracts
+make docker-verification
+```
+
+Now run the app (the default command will run the scenarios defined in [`specification.json`](https://github.com/relari-ai/agent-examples/blob/main/apps/langgraph-fin-agent/specifications.json)). Make sure you've installed the langgraph-fin-agent [README](https://github.com/relari-ai/agent-examples/blob/main/apps/langgraph-fin-agent/README.md).
+```
+cd agent-examples/apps/langgraph-fin-agent
+poetry run finchat --eval
+```
+
+You can now viwe the traces in the Jaeger UI at `http://localhost:16686`. Or you can fetch the traces via the Agent Contracts CLI.
+
+<pre style={{ fontFamily: '"Space Mono", monospace', lineHeight: '1.2em' }}>
+$ poetry run cli ls run --timespan 1h
+Listing runs from 2025-03-11 04:27:05.937162+00:00 to 2025-03-11 05:27:05.937158+00:00...
+┏━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┓
+┃ Run ID   ┃ Project Name        ┃ Specifications ID ┃ Start Time          ┃ End Time            ┃
+┡━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━┩
+│ 187a8d09 │ langgraph-fin-agent │ yw936jmp          │ 2025-03-10 21:56:20 │ 2025-03-10 21:56:20 │
+└──────────┴─────────────────────┴───────────────────┴─────────────────────┴─────────────────────┘
+
+</pre>
 
 ## Verification Results
 
 The following is the verification results post-execution. We can see that the `con-comparison` and `con-analysis` contracts are satisfied while the `con-liquidity-analysis` contract is not.
 
 <pre style={{ fontFamily: '"Space Mono", monospace', lineHeight: '1.2em' }}>
-$poetry run cli verify run cd26ad7e fin-agent-contract.json --timespan 1d
-Verifying run cd26ad7e with specifications from .local/fin-agent-contract.json...
-Output will be saved to output/verify_cd26ad7e.json
-Contract Fin Scenarios: 100%|████████████████████████████████████████████████████████████████| 3/3 [00:05 < 00:00,  1.93s/it]
-Contract Fin Scenarios: 100%|████████████████████████████████████████████████████████████████| 4/4 [00:07 < 00:00,  1.91s/it]
-Contract Fin Scenarios: 100%|████████████████████████████████████████████████████████████████| 4/4 [00:08 < 00:00,  2.06s/it]
-───────────────────────────────────────── Trace 150a4110d9de4134e577f7f4c0c56bd4 ──────────────────────────────────────────
-                               Fin Scenarios (UNSATISFIED)
+$ poetry run cli verify run 187a8d09 /Users/yisz/code/Relari/agent-examples/apps/langgraph-fin-agent/specifications.json --timespan 1d
+Verifying run 187a8d09 with specifications from agent-examples/apps/langgraph-fin-agent/specifications.json...
+Output will be saved to output/verify_187a8d09.json
+Contract Right Tickers: 100%|████████████████████████████████████████████████████████████| 3/3 [00:06 < 00:00,  2.06s/it]
+Contract Right Tickers: 100%|████████████████████████████████████████████████████████████| 4/4 [00:08 < 00:00,  2.22s/it]
+Contract Right Tickers: 100%|████████████████████████████████████████████████████████████| 4/4 [00:10 < 00:00,  2.64s/it]
+─────────────────────────────────────── Trace 6f644c2e191daa723fcd7effac3de3e0 ────────────────────────────────────────
+                               Right Tickers (UNSATISFIED)                                 
 ┏━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓
 ┃ Type ┃ Qualifier ┃ Requirement                                             ┃ Satisfied ┃
 ┡━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━┩
@@ -80,8 +138,8 @@ Contract Fin Scenarios: 100%|█████████████████
 │ POST │ MUST      │ Output a table                                          │ No        │
 │ POST │ SHOULD    │ Include at least Tesla, Ford, and General Motors        │ No        │
 └──────┴───────────┴─────────────────────────────────────────────────────────┴───────────┘
-───────────────────────────────────────── Trace a8ac6ae61209833f7abd723bdd175770 ──────────────────────────────────────────
-                                   Fin Scenarios (SATISFIED)                                    
+─────────────────────────────────────── Trace 0cbce717cb265f18e45f6047c3f6060d ────────────────────────────────────────
+                                   Right Tickers (SATISFIED)                                    
 ┏━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓
 ┃ Type ┃ Qualifier ┃ Requirement                                                   ┃ Satisfied ┃
 ┡━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━┩
@@ -90,15 +148,101 @@ Contract Fin Scenarios: 100%|█████████████████
 │ PATH │ MUST      │ Retrieve Adidas financials with the ticker ADDYY              │ Yes       │
 │ POST │ SHOULD    │ A numeric value for operating margins expressed in percentage │ Yes       │
 └──────┴───────────┴───────────────────────────────────────────────────────────────┴───────────┘
-───────────────────────────────────────── Trace a7bb5cfe26811835333c087e151f5eda ──────────────────────────────────────────
-                              Fin Scenarios (SATISFIED)                               
+─────────────────────────────────────── Trace 7d01b56e279cc75e44a3b2e57890b9bd ────────────────────────────────────────
+                              Right Tickers (SATISFIED)                               
 ┏━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓
 ┃ Type ┃ Qualifier ┃ Requirement                                         ┃ Satisfied ┃
 ┡━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━┩
 │ PRE  │ MUST      │ Question about Tesla's net income                   │ Yes       │
 │ PATH │ MUST      │ Retrieve Tesla's net income with the ticker TSLA    │ Yes       │
-│ POST │ SHOULD    │ A numeric value for net income expressed in dollars │ Yes       │
+│ POST │ SHOULD    │ A numeric value for net income expressed in dollars │ No        │
 └──────┴───────────┴─────────────────────────────────────────────────────┴───────────┘
+
 </pre>
 
-You can further inspect the detailed verification results with reasoning in the `output/verify_cd26ad7e.json` file.
+You can further inspect the detailed verification results with reasoning in the `output/verify_187a8d09.json` file.
+
+```json
+[
+  {
+    "trace_id": "6f644c2e191daa723fcd7effac3de3e0",
+    "specifications_id": "yw936jmp",
+    "scenario_id": "de_ratio",
+    "contracts": {
+      "ctr-de-ratio": {
+        "status": "UNSATISFIED",
+        "info": {
+          "req-1o9d2re5": {
+            "satisfied": true,
+            "explanation": "The input consists of a question that asks about which car manufacturer currently has the highest debt-to-equity ratio. This directly pertains to the debt-to-equity ratio, aligning perfectly with the specified property of asking about this financial metric."
+          },
+          "req-mpxqjtp9": {
+            "satisfied": false,
+            "explanation": "The trace shows that the system attempted to retrieve stock and financial data. Although a stock screener call returned multiple companies, only two car manufacturers (Toyota Motor Corporation and Tesla, Inc.) had their financial ratios retrieved successfully. The requirement was to retrieve financials for at least three car manufacturers, but only two were processed."
+          },
+          "req-0b8a77rw": {
+            "satisfied": false,
+            "explanation": "The system output does contain a table summarizing the debt-to-equity ratios for car manufacturers in the text format. However, it does not produce a proper table formatted in a structured manner, such as Markdown or HTML table formats as usually expected when the requirement is specifically to 'output a table'. The final result includes a list of messages and some formatted text, but it does not fulfill the specific property of presenting the data in a true table format. Therefore, the output does not fully satisfy the requirement of 'Output a table'."
+          },
+          "req-gmftn5r4": {
+            "satisfied": false,
+            "explanation": "The system output only includes information about Toyota and Tesla, specifically their debt-to-equity ratios. The requirement explicitly states that the output must include at least Tesla, Ford, and General Motors. Since Ford and General Motors are not mentioned in the system output, the requirement is not satisfied."
+          }
+        }
+      }
+    }
+  },
+  {
+    "trace_id": "0cbce717cb265f18e45f6047c3f6060d",
+    "specifications_id": "yw936jmp",
+    "scenario_id": "nike_vs_adidas",
+    "contracts": {
+      "ctr-nike-vs-adidas": {
+        "status": "SATISFIED",
+        "info": {
+          "req-1tqgsovv": {
+            "satisfied": true,
+            "explanation": "The input consists of a question that explicitly asks for a comparison between two companies, Nike and Adidas, specifically regarding their operating margins. Since it directly requests a comparison, the requirement is clearly satisfied."
+          },
+          "req-3yz4o802": {
+            "satisfied": true,
+            "explanation": "The execution trace shows that the Financial_Data_Agent successfully called the 'get_financial_ratios' function with the symbol 'NKE' and retrieved several financial records for Nike, which include operating profit margins among other ratios. Additionally, the final summary clearly distinguishes Nike's financial data (with a ticker of NKE) from Adidas, confirming that the requirement to retrieve Nike financials with the ticker NKE was fulfilled."
+          },
+          "req-4bbi6llo": {
+            "satisfied": true,
+            "explanation": "The trace shows that after routing the request through multiple agents, the Financial_Data_Agent executed a get_financial_ratios call with the symbol ADDYY to retrieve Adidas financials. The retrieved data was then used in the final summary, which clearly displays Adidas's operating profit margin. Thus, the requirement to retrieve Adidas financials with ticker ADDYY has been satisfied."
+          },
+          "req-a50bzp2j": {
+            "satisfied": true,
+            "explanation": "The system output provides the operating profit margins for both Nike and Adidas, specifically stating them as 13.03% for Nike and 5.65% for Adidas. This information directly presents numeric values for operating margins, clearly expressed in percentage form. Therefore, the output satisfies the requirement of including a numeric value for operating margins expressed as a percentage."
+          }
+        }
+      }
+    }
+  },
+  {
+    "trace_id": "7d01b56e279cc75e44a3b2e57890b9bd",
+    "specifications_id": "yw936jmp",
+    "scenario_id": "tesla_income",
+    "contracts": {
+      "ctr-tsla-income": {
+        "status": "SATISFIED",
+        "info": {
+          "req-j3n61sid": {
+            "satisfied": true,
+            "explanation": "The input contains a question specifically asking about the changes in Tesla's net income over a period of five years. This directly relates to the requirement of asking about Tesla's net income."
+          },
+          "req-ghs1pr6x": {
+            "satisfied": true,
+            "explanation": "The trace successfully retrieved Tesla's net income data for TSLA. Both key metric and line item queries were made and the final summary provided a table of net income for 2020-2024, thus satisfying the requirement."
+          },
+          "req-sc0xkkxx": {
+            "satisfied": false,
+            "explanation": "The provided system output includes a summary of Tesla's net income in a tabular format, with values expressed in billions rather than dollars. For example, it states that in 2020, Tesla's net income was 0.721 billion, which translates to 721 million dollars. Although the output discusses and presents net income changes, it does not provide any numeric value expressed directly in dollars, which was the requirement. Therefore, it does not satisfy the specified property."
+          }
+        }
+      }
+    }
+  }
+]
+```

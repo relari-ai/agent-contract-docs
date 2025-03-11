@@ -25,7 +25,7 @@ In this section, we will show how to quickly instrument your agent code to colle
   </Step>
   <Step title="Option A: Set up Agent Contracts for Offline Verification">
     
-    In the `agent-contracts` directory, start the agent contract service for verification.
+    In the `agent-contracts` directory, start the agent contract service for verification. You can come back to this step after you've created your first verification specification (more details in [Scenarios and Specifications](/contracts/specifications)).
 
     ```bash
     make docker-verification
@@ -41,7 +41,7 @@ In this section, we will show how to quickly instrument your agent code to colle
   </Step>
   <Step title="Option B: Set up Agent Contracts for Runtime Certification">
     
-    In the `agent-contracts` directory, start the agent contract service for runtime certification. You will need to set up a `specs.json` that specifies the runtime scenarios before starting the service (more details in [Scenarios and Specifications](/contracts/specifications)).
+    In the `agent-contracts` directory, start the agent contract service for runtime certification. You can come back to this step after you've created your first certification specification (more details in [Scenarios and Specifications](/contracts/specifications)).
 
     ```bash
     export RUNTIME_VERIFICATION_CONFIG="configs/runtime-certification.yaml" && \
